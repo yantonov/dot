@@ -16,4 +16,4 @@ If some files already exist than backup files will be created.
 1. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
 2. [dotfiles](https://github.com/holman/dotfiles)
 3. [homesick](https://github.com/technicalpickles/homesick)
-
+4. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)

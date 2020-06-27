@@ -5,7 +5,7 @@
 Tiny tool to deal with configuration files (dot files).
 
 #### Idea
-This tool iterates over the current directory and creates symbolic links from ${HOME} to all files inside the current directory.  
+This tool iterates over the current directory including subdirectories and creates symbolic links from ${HOME} to all files inside the current directory.  
 If some files already exist than backup files will be created.  
 
 #### Installation

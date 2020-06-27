@@ -1,4 +1,3 @@
-use std::fs::File;
 use std::path::{Path, PathBuf};
 use std::result::Result;
 
@@ -7,11 +6,11 @@ use walkdir::{DirEntry, WalkDir};
 use crate::environment::Environment;
 
 #[allow(unused_must_use)]
-fn iterate_files<C>(path: &PathBuf,
+fn iterate_files<C>(root: &PathBuf,
                     context: &C,
                     file_operation: fn(&C, &DirEntry) -> Result<(), String>,
 ) -> Result<(), String> {
-    for entry in WalkDir::new(path)
+    for entry in WalkDir::new(root)
         .into_iter() {
         let e = entry
             .map_err(|e| e.to_string());
@@ -19,7 +18,10 @@ fn iterate_files<C>(path: &PathBuf,
         if e.is_ok() {
             let entry_value = e.unwrap();
             if !entry_value.file_type().is_dir() {
-                file_operation(context, &entry_value);
+                let result = file_operation(context, &entry_value);
+                if result.is_err() {
+                    println!("error={}", result.unwrap_err())
+                }
             }
         }
     }
@@ -28,7 +30,6 @@ fn iterate_files<C>(path: &PathBuf,
 
 struct FileOperationContext {
     home: String,
-    #[allow(dead_code)]
     current_directory: PathBuf,
 }
 
@@ -43,8 +44,12 @@ fn create_file_operation_context(env: &Environment) -> Result<FileOperationConte
         })
 }
 
-fn get_file_name(entry: &DirEntry) -> Result<String, String> {
-    let option = entry.file_name().to_str();
+fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, String> {
+    let stripped = entry.path().strip_prefix(&root);
+    if stripped.is_err() {
+        return Err("cannot strip prefix".to_string());
+    }
+    let option = stripped.unwrap().to_str();
     match option {
         None => Err("cannot extract file name for file".to_string()),
         Some(v) => Ok(v.to_string()),
@@ -53,7 +58,7 @@ fn get_file_name(entry: &DirEntry) -> Result<String, String> {
 
 fn link_file_operation(context: &FileOperationContext,
                        entry: &DirEntry) -> Result<(), String> {
-    let file_name = get_file_name(entry)?;
+    let file_name = get_relative_file_name(&context.current_directory, entry)?;
 
     let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
     let home_file_path = home_file_pathbuf.as_path();
@@ -62,6 +67,12 @@ fn link_file_operation(context: &FileOperationContext,
         // TODO: if file exists and not equal to source file
         // create backup file and create symlink
     } else {
+        let home_file_path_parent_dir = home_file_path.parent()
+            .unwrap();
+        if !home_file_path_parent_dir.exists() {
+            std::fs::create_dir(home_file_path_parent_dir)
+                .map_err(|e| e.to_string())?;
+        }
         symlink::symlink_file(repository_file_path, &home_file_path)
             .map_err(|e| e.to_string())?;
     }
@@ -70,7 +81,7 @@ fn link_file_operation(context: &FileOperationContext,
 
 fn unlink_file_operation(context: &FileOperationContext,
                          entry: &DirEntry) -> Result<(), String> {
-    let file_name = get_file_name(entry)?;
+    let file_name = get_relative_file_name(&context.current_directory, entry)?;
 
     let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
     let home_file_path = home_file_pathbuf.as_path();

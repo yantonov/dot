@@ -5,7 +5,6 @@ use walkdir::{DirEntry, WalkDir};
 
 use crate::environment::Environment;
 
-#[allow(unused_must_use)]
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
                     file_operation: fn(&C, &DirEntry) -> Result<(), String>,

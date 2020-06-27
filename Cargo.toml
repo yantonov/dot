@@ -10,6 +10,7 @@ edition = "2018"
 walkdir = "2"
 clap = "3.0.0-beta.1"
 symlink = "0.1.0"
+chrono = "0.4.11"
 
 [profile.release]
 opt-level = 'z'  # Optimize for size.

@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.com/yantonov/dot.svg?branch=master)](https://travis-ci.com/yantonov/dot)
+
 ###  Dot
 
 Tiny tool to deal with configuration files (dot files).

@@ -1,7 +1,7 @@
 use clap::Clap;
 
 #[derive(Clap)]
-#[clap(version = "0.1.0", author = "Yury Antonov <yantonov@yandex.ru>")]
+#[clap(version = "0.1.2")]
 struct Opts {
     #[clap(short, long, parse(from_occurrences))]
     #[allow(dead_code)]

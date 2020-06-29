@@ -22,7 +22,7 @@ Backup files will be generated before the creation of symbolic links.
 1. The app is implemented in rust to simplify the distribution process and remove any issues with scripting languages and setting environment.
 2. The composition of settings for different platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call utility manually from selected directories.
-3. This implementation provides supports simple scenario to create symlinks, restore regular file and creating backup files before any symlink is introduced.
+3. This implementation supports simplest scenario to create symlinks, restore regular file and creating backup files before any symlink is introduced.
 
 ##### Todo list:
 1. verbose output

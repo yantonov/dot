@@ -12,7 +12,7 @@ struct Opts {
 
 #[derive(Clap)]
 pub enum Command {
-    #[clap(about = "create symbolic links")]
+    #[clap(about = "create symbolic links, backup files will be generated")]
     Link(Link),
     #[clap(about = "remove symbolic links, and use regular files")]
     Unlink(Unlink),

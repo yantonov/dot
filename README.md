@@ -2,11 +2,11 @@
 
 ###  Dot
 
-Tiny tool to deal with configuration files (dot files).
+Tiny tool helps to deal with configuration files (dot files).
 
 #### Mechanics
 This tool iterates over the current directory including subdirectories and creates symbolic links from ${HOME} to all files inside the current directory.  
-If some files already exist than backup files will be created.  
+Backup files will be generated before the creation of symbolic links.  
 
 #### Installation
 1. Put the binary file into PATH
@@ -22,6 +22,7 @@ If some files already exist than backup files will be created.
 1. The app is implemented in rust to simplify the distribution process and remove any issues with scripting languages and setting environment.
 2. The composition of settings for different platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call utility manually from selected directories.
+3. This implementation provides supports simple scenario.
 
 ##### Todo list:
 1. verbose output

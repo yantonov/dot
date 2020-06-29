@@ -103,11 +103,14 @@ fn unlink_file_operation(context: &FileOperationContext,
     let home_file_path = home_file_pathbuf.as_path();
     let repository_file_path = entry.path();
     if home_file_path.exists() {
-        if std::fs::read_link(home_file_path).is_ok() {
-            std::fs::remove_file(home_file_path)
-                .map_err(|e| e.to_string())?;
-            std::fs::copy(repository_file_path, home_file_path)
-                .map_err(|e| e.to_string())?;
+        let link = std::fs::read_link(home_file_path);
+        if link.is_ok() {
+            if link.unwrap().as_path() == entry.path() {
+                std::fs::remove_file(home_file_path)
+                    .map_err(|e| e.to_string())?;
+                std::fs::copy(repository_file_path, home_file_path)
+                    .map_err(|e| e.to_string())?;
+            }
         }
     }
     Ok(())

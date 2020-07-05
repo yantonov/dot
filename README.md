@@ -25,5 +25,4 @@ Corresponding settings can be versioned in separate directories as you like and 
 3. This implementation supports simplest scenario to create symlinks, restore regular file and creating backup files before any symlink is introduced.
 
 ##### Todo list:
-1. verbose output
-2. add command to remove backup files
+1. add command to remove backup files

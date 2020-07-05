@@ -4,7 +4,6 @@ use clap::{Clap, crate_version};
 #[clap(version = crate_version ! ())]
 struct Opts {
     #[clap(short, long, parse(from_occurrences))]
-    #[allow(dead_code)]
     verbose: i32,
     #[clap(subcommand)]
     command: Command,
@@ -31,8 +30,10 @@ pub struct Arguments {
 
 impl Arguments {
     pub fn command(&self) -> &Command {
-        return &self.args.command;
+        &self.args.command
     }
+
+    pub fn verbose(&self) -> i32 { self.args.verbose }
 }
 
 pub fn arguments() -> Arguments {

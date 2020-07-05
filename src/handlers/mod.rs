@@ -2,12 +2,15 @@ use std::path::{Path, PathBuf};
 use std::result::Result;
 
 use chrono::Local;
+use colored::Colorize;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::environment::Environment;
+use crate::log::Logger;
 
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
+                    _logger: &Logger,
                     file_operation: fn(&C, &DirEntry) -> Result<(), String>,
 ) -> Result<(), String> {
     for entry in WalkDir::new(root)
@@ -19,8 +22,16 @@ fn iterate_files<C>(root: &PathBuf,
             let entry_value = e.unwrap();
             if !entry_value.file_type().is_dir() {
                 let result = file_operation(context, &entry_value);
+                let entry_path_str = entry_value.path().to_str().unwrap();
                 if result.is_err() {
-                    println!("error={}", result.unwrap_err())
+                    _logger.log(&format!("{} [{}] {}",
+                                         entry_path_str,
+                                         "Error".red(),
+                                         result.unwrap_err()))
+                } else {
+                    _logger.log(&format!("{} [{}]",
+                                         entry_path_str,
+                                         "Ok".green()))
                 }
             }
         }
@@ -138,7 +149,8 @@ fn unlink_file_operation(context: &FileOperationContext,
     Ok(())
 }
 
-pub fn link(_environment: &Environment) -> Result<(), String> {
+pub fn link(_environment: &Environment,
+            _logger: &Logger) -> Result<(), String> {
     let current_dir = _environment.current_dir()
         .map_err(|e| e.to_string())?;
 
@@ -146,10 +158,12 @@ pub fn link(_environment: &Environment) -> Result<(), String> {
 
     iterate_files(&current_dir,
                   &context,
+                  _logger,
                   link_file_operation)
 }
 
-pub fn unlink(_environment: &Environment) -> Result<(), String> {
+pub fn unlink(_environment: &Environment,
+              _logger: &Logger) -> Result<(), String> {
     let current_dir = _environment.current_dir()
         .map_err(|e| e.to_string())?;
 
@@ -157,5 +171,6 @@ pub fn unlink(_environment: &Environment) -> Result<(), String> {
 
     iterate_files(&current_dir,
                   &context,
+                  _logger,
                   unlink_file_operation)
 }

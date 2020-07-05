@@ -1,7 +1,7 @@
-use clap::Clap;
+use clap::{Clap, crate_version};
 
 #[derive(Clap)]
-#[clap(version = "0.1.2")]
+#[clap(version = crate_version ! ())]
 struct Opts {
     #[clap(short, long, parse(from_occurrences))]
     #[allow(dead_code)]

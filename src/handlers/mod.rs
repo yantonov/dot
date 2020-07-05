@@ -60,6 +60,41 @@ fn get_timestamp_string() -> String {
     Local::now().format("%Y-%m-%d_%H-%M-%S").to_string()
 }
 
+fn create_backup_file(home_file_path: &Path,
+                      repository_path: &Path) -> Result<(), String> {
+    if !home_file_path.exists() {
+        return Ok(());
+    }
+    let link = std::fs::read_link(home_file_path);
+    if link.is_ok() && link.unwrap().as_path() == repository_path {
+        return Ok(());
+    }
+
+    let s: String = vec![
+        home_file_path.to_str().unwrap(),
+        ".bak.",
+        &get_timestamp_string()
+    ]
+        .join("");
+    let backup_file_copy_path = Path::new(
+        &s);
+
+    std::fs::copy(home_file_path, backup_file_copy_path)
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+fn create_parent_directory(home_file_path: &Path) -> Result<(), String> {
+    let home_file_path_parent_dir = home_file_path.parent()
+        .unwrap();
+    if !home_file_path_parent_dir.exists() {
+        std::fs::create_dir(home_file_path_parent_dir)
+            .map_err(|e| e.to_string())?;
+    }
+    Ok(())
+}
+
 fn link_file_operation(context: &FileOperationContext,
                        entry: &DirEntry) -> Result<(), String> {
     let file_name = get_relative_file_name(&context.current_directory, entry)?;
@@ -67,26 +102,13 @@ fn link_file_operation(context: &FileOperationContext,
     let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
     let home_file_path = home_file_pathbuf.as_path();
     let repository_file_path = entry.path();
+
+    create_backup_file(&home_file_path, &repository_file_path)?;
+
+    create_parent_directory(&home_file_path)?;
+
     if home_file_path.exists() {
-        let s: String = vec![
-            home_file_path.to_str().unwrap(),
-            ".bak.",
-            &get_timestamp_string()
-        ]
-            .join("");
-        let backup_file_copy_path = Path::new(
-            &s);
-
-        std::fs::copy(home_file_path, backup_file_copy_path)
-            .map_err(|e| e.to_string())?;
         std::fs::remove_file(home_file_path)
-            .map_err(|e| e.to_string())?;
-    }
-
-    let home_file_path_parent_dir = home_file_path.parent()
-        .unwrap();
-    if !home_file_path_parent_dir.exists() {
-        std::fs::create_dir(home_file_path_parent_dir)
             .map_err(|e| e.to_string())?;
     }
     symlink::symlink_file(repository_file_path, &home_file_path)

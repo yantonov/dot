@@ -89,7 +89,7 @@ fn create_parent_directory(home_file_path: &Path) -> Result<(), String> {
     let home_file_path_parent_dir = home_file_path.parent()
         .unwrap();
     if !home_file_path_parent_dir.exists() {
-        std::fs::create_dir(home_file_path_parent_dir)
+        std::fs::create_dir_all(home_file_path_parent_dir)
             .map_err(|e| e.to_string())?;
     }
     Ok(())

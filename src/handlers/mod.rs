@@ -2,11 +2,10 @@ use std::path::{Path, PathBuf};
 use std::result::Result;
 
 use chrono::Local;
-use colored::Colorize;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::environment::Environment;
-use crate::log::Logger;
+use crate::log::{Logger, LogLevel};
 
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
@@ -24,14 +23,14 @@ fn iterate_files<C>(root: &PathBuf,
                 let result = file_operation(context, &entry_value);
                 let entry_path_str = entry_value.path().to_str().unwrap();
                 if result.is_err() {
-                    _logger.log(&format!("{} [{}] {}",
+                    _logger.log(LogLevel::Error,
+                                &format!("{} - {}",
                                          entry_path_str,
-                                         "Error".red(),
                                          result.unwrap_err()))
                 } else {
-                    _logger.log(&format!("{} [{}]",
-                                         entry_path_str,
-                                         "Ok".green()))
+                    _logger.log(LogLevel::Info,
+                                &format!("{}",
+                                         entry_path_str))
                 }
             }
         }

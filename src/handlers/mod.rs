@@ -38,14 +38,14 @@ fn iterate_files<C>(root: &PathBuf,
     Ok(())
 }
 
-struct FileOperationContext {
-    home: String,
-    current_directory: PathBuf,
+struct FileOperationContext<'a> {
+    home: &'a String,
+    current_directory: &'a PathBuf,
 }
 
 fn create_file_operation_context(env: &Environment) -> Result<FileOperationContext, String> {
-    let home = env.home_directory()?;
-    let current_directory = env.current_dir()?;
+    let home = env.home_directory();
+    let current_directory = env.current_dir();
 
     Ok(
         FileOperationContext {
@@ -150,8 +150,7 @@ fn unlink_file_operation(context: &FileOperationContext,
 
 pub fn link(_environment: &Environment,
             _logger: &Logger) -> Result<(), String> {
-    let current_dir = _environment.current_dir()
-        .map_err(|e| e.to_string())?;
+    let current_dir = _environment.current_dir();
 
     let context = create_file_operation_context(_environment)?;
 
@@ -163,8 +162,7 @@ pub fn link(_environment: &Environment,
 
 pub fn unlink(_environment: &Environment,
               _logger: &Logger) -> Result<(), String> {
-    let current_dir = _environment.current_dir()
-        .map_err(|e| e.to_string())?;
+    let current_dir = _environment.current_dir();
 
     let context = create_file_operation_context(_environment)?;
 

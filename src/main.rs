@@ -8,7 +8,7 @@ mod handlers;
 mod log;
 
 fn main() -> Result<(), String> {
-    let environment = environment::environment();
+    let environment = environment::system_environment();
     let cli_arguments = cli_arguments::arguments();
     let logger = log::create(cli_arguments.verbose());
 

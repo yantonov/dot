@@ -1,6 +1,6 @@
 [package]
 name = "dot"
-version = "0.1.5"
+version = "0.1.6"
 authors = ["Yury Antonov <yantonov@yandex.ru>"]
 edition = "2018"
 

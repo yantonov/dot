@@ -16,9 +16,9 @@ Backup files will be generated before the creation of symbolic links.
 2. Use it from any directory (from your git repository or any other folder)
 
 #### Examples
-1. [some bash files](https://github.com/yantonov/sh/tree/master/mac/dotfiles)  
-Run the dot tool inside the given directory.
-2. [git config](https://github.com/yantonov/gitconfig)  
+1. [some bash files](https://github.com/yantonov/sh)  
+Run the dot tool inside the mac/dotfiles directory.
+2. [nested directory example](https://github.com/yantonov/dotlein)  
 Run the dot tool inside the config directory.
 
 ##### Some tecnhical notes: 

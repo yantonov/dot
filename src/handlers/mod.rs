@@ -113,9 +113,9 @@ fn link_file_operation(context: &FileOperationContext,
     let home_file_path = home_file_pathbuf.as_path();
     let repository_file_path = entry.path();
 
-    create_backup_file(&home_file_path, &repository_file_path)?;
-
     create_parent_directory(&home_file_path)?;
+
+    create_backup_file(&home_file_path, &repository_file_path)?;
 
     if home_file_path.exists() {
         std::fs::remove_file(home_file_path)

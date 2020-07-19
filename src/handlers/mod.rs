@@ -9,8 +9,7 @@ use crate::log::{Logger, LogLevel};
 
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
-                    _logger: &Logger,
-                    file_operation: fn(&C, &DirEntry) -> Result<(), String>,
+                    file_operation: &dyn Fn(&C, &DirEntry) -> Result<(), String>,
 ) -> Result<(), String> {
     for entry in WalkDir::new(root)
         .into_iter() {
@@ -20,18 +19,7 @@ fn iterate_files<C>(root: &PathBuf,
         if e.is_ok() {
             let entry_value = e.unwrap();
             if !entry_value.file_type().is_dir() {
-                let result = file_operation(context, &entry_value);
-                let entry_path_str = entry_value.path().to_str().unwrap();
-                if result.is_err() {
-                    _logger.log(LogLevel::Error,
-                                &format!("{} - {}",
-                                         entry_path_str,
-                                         result.unwrap_err()))
-                } else {
-                    _logger.log(LogLevel::Info,
-                                &format!("{}",
-                                         entry_path_str))
-                }
+                let _ = file_operation(context, &entry_value);
             }
         }
     }
@@ -148,6 +136,26 @@ fn unlink_file_operation(context: &FileOperationContext,
     Ok(())
 }
 
+fn wrap_with_log<'a, C>(_logger: &'a Logger,
+                        operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String>)) ->
+                        impl Fn(&C, &DirEntry) -> Result<(), String> + 'a {
+    move |context: &C, entry_value: &DirEntry| {
+        let result = operation(context, &entry_value);
+        let entry_path_str = entry_value.path().to_str().unwrap();
+        if result.is_err() {
+            _logger.log(LogLevel::Error,
+                        &format!("{} - {}",
+                                 entry_path_str,
+                                 result.unwrap_err()))
+        } else {
+            _logger.log(LogLevel::Info,
+                        &format!("{}",
+                                 entry_path_str))
+        }
+        Ok(())
+    }
+}
+
 pub fn link(_environment: &Environment,
             _logger: &Logger) -> Result<(), String> {
     let current_dir = _environment.current_dir();
@@ -156,8 +164,7 @@ pub fn link(_environment: &Environment,
 
     iterate_files(&current_dir,
                   &context,
-                  _logger,
-                  link_file_operation)
+                  &wrap_with_log(_logger, &link_file_operation))
 }
 
 pub fn unlink(_environment: &Environment,
@@ -168,6 +175,5 @@ pub fn unlink(_environment: &Environment,
 
     iterate_files(&current_dir,
                   &context,
-                  _logger,
-                  unlink_file_operation)
+                  &wrap_with_log(_logger, &unlink_file_operation))
 }

@@ -31,9 +31,10 @@ Corresponding settings can be versioned in separate directories as you like and 
 1. add command to remove backup files
 
 ##### Inspired by:
-1. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
-2. [dotfiles](https://github.com/holman/dotfiles)
-3. [homesick](https://github.com/technicalpickles/homesick)
-4. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
+1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
+2. [dotfiles.github](https://dotfiles.github.io/)
+3. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
+4. [dotfiles](https://github.com/holman/dotfiles)
+5. [homesick](https://github.com/technicalpickles/homesick)
 
 Thanks to all of these projects for the idea!

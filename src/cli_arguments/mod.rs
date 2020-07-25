@@ -15,6 +15,8 @@ pub enum Command {
     Link(Link),
     #[clap(about = "remove symbolic links, and use regular files")]
     Unlink(Unlink),
+    #[clap(about = "list files (recursively) inside the current directory")]
+    List(List),
 }
 
 #[derive(Clap)]
@@ -23,6 +25,8 @@ pub struct Link {}
 #[derive(Clap)]
 pub struct Unlink {}
 
+#[derive(Clap)]
+pub struct List {}
 
 pub struct Arguments {
     args: Opts

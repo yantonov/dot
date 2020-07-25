@@ -136,8 +136,17 @@ fn unlink_file_operation(context: &FileOperationContext,
     Ok(())
 }
 
+fn list_file_operation(_: &FileOperationContext,
+                       entry: &DirEntry) -> Result<(), String> {
+    let repository_file_path = entry.path();
+    if let Some(value) = repository_file_path.to_str() {
+        println!("{}", value);
+    }
+    Ok(())
+}
+
 fn wrap_with_log<'a, C>(_logger: &'a Logger,
-                        operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String>)) ->
+                        operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String> )) ->
                         impl Fn(&C, &DirEntry) -> Result<(), String> + 'a {
     move |context: &C, entry_value: &DirEntry| {
         let result = operation(context, &entry_value);
@@ -176,4 +185,15 @@ pub fn unlink(_environment: &Environment,
     iterate_files(&current_dir,
                   &context,
                   &wrap_with_log(_logger, &unlink_file_operation))
+}
+
+pub fn list(_environment: &Environment,
+            _: &Logger) -> Result<(), String> {
+    let current_dir = _environment.current_dir();
+
+    let context = create_file_operation_context(_environment)?;
+
+    iterate_files(&current_dir,
+                  &context,
+                  &list_file_operation)
 }

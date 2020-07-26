@@ -12,6 +12,7 @@ fn iterate_files<C>(root: &PathBuf,
                     file_operation: &dyn Fn(&C, &DirEntry) -> Result<(), String>,
 ) -> Result<(), String> {
     for entry in WalkDir::new(root)
+        .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .into_iter() {
         let e = entry
             .map_err(|e| e.to_string());

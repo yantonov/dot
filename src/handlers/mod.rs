@@ -147,16 +147,21 @@ fn list_file_operation(_: &FileOperationContext,
     Ok(())
 }
 
-fn is_backup_file(file_name: &str) -> bool {
-    let re = Regex::new(r"(^.*\.bak\.\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$)").unwrap();
-    re.is_match(file_name)
+fn is_backup_file(original_file: &str,
+                  possibly_backup_file: &str) -> bool {
+    let string = format!("^{}\\.bak\\.\\d{{4}}-\\d{{2}}-\\d{{2}}_\\d{{2}}-\\d{{2}}-\\d{{2}}$",
+                         regex::escape(original_file));
+    let re = Regex::new(&string).unwrap();
+    re.is_match(possibly_backup_file)
 }
 
 fn list_backup_files(context: &FileOperationContext,
                      entry: &DirEntry) -> Result<Vec<DirEntry>, String> {
     let file_name = get_relative_file_name(&context.current_directory, entry)?;
 
-    let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
+    let home_file_pathbuf = Path::join(
+        Path::new(&context.home),
+        file_name.clone());
     let home_file_path = home_file_pathbuf.as_path();
     let home_file_directory = home_file_path.parent().unwrap();
 
@@ -168,7 +173,10 @@ fn list_backup_files(context: &FileOperationContext,
             .filter(|entry| entry.is_ok())
             .map(|entry| entry.unwrap())
             .filter(|entry|
-                is_backup_file(entry.file_name().to_str().unwrap())
+                entry.file_name().to_str().unwrap().starts_with(file_name.as_str()))
+            .filter(|entry|
+                is_backup_file(&file_name.clone(),
+                               entry.file_name().to_str().unwrap())
             )
             .into_iter()
             .collect()
@@ -276,14 +284,21 @@ mod tests {
 
     #[test]
     fn backup_file_pattern_test() {
-        assert_eq!(true, is_backup_file("test.bak.2020-01-01_12-01-01"));
-        assert_eq!(true, is_backup_file("test.bak.bak.2020-01-01_12-01-01"));
+        assert_eq!(true, is_backup_file("test",
+                                        "test.bak.2020-01-01_12-01-01"));
+        assert_eq!(true, is_backup_file("test.bak",
+                                        "test.bak.bak.2020-01-01_12-01-01"));
     }
 
     #[test]
     fn not_backup_file_pattern_test() {
-        assert_eq!(false, is_backup_file("test.txt"));
-        assert_eq!(false, is_backup_file("test.txt.bak"));
-        assert_eq!(false, is_backup_file("test.txt.bak.2020-01-01"));
+        assert_eq!(false, is_backup_file("test.txt",
+                                         "test.txt"));
+        assert_eq!(false, is_backup_file("test.txt",
+                                         "test.txt.bak"));
+        assert_eq!(false, is_backup_file("test.txt",
+                                         "test.txt.bak.2020-01-01"));
+        assert_eq!(false, is_backup_file("prefix",
+                                         "prefix_test.txt.bak.2020-01-01_12-01-01"));
     }
 }

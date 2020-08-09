@@ -1,12 +1,12 @@
 use std::path::{Path, PathBuf};
 use std::result::Result;
 
-use chrono::Local;
-use regex::Regex;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::environment::Environment;
 use crate::log::{Logger, LogLevel};
+
+mod backup;
 
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
@@ -49,10 +49,6 @@ fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, Strin
     }
 }
 
-fn get_timestamp_string() -> String {
-    Local::now().format("%Y-%m-%d_%H-%M-%S").to_string()
-}
-
 fn create_backup_file(home_file_path: &Path,
                       repository_path: &Path) -> Result<(), String> {
     if !home_file_path.exists() {
@@ -63,14 +59,7 @@ fn create_backup_file(home_file_path: &Path,
         return Ok(());
     }
 
-    let s: String = vec![
-        home_file_path.to_str().unwrap(),
-        ".bak.",
-        &get_timestamp_string()
-    ]
-        .join("");
-    let backup_file_copy_path = Path::new(
-        &s);
+    let backup_file_copy_path = backup::get_backup_file_path(home_file_path);
 
     std::fs::copy(home_file_path, backup_file_copy_path)
         .map_err(|e| e.to_string())?;
@@ -140,14 +129,6 @@ fn list_file_operation(_: &FileOperationContext,
     Ok(())
 }
 
-fn is_backup_file(original_file: &str,
-                  possibly_backup_file: &str) -> bool {
-    let string = format!("^{}\\.bak\\.\\d{{4}}-\\d{{2}}-\\d{{2}}_\\d{{2}}-\\d{{2}}-\\d{{2}}$",
-                         regex::escape(original_file));
-    let re = Regex::new(&string).unwrap();
-    re.is_match(possibly_backup_file)
-}
-
 fn list_backup_files(context: &FileOperationContext,
                      entry: &DirEntry) -> Result<Vec<DirEntry>, String> {
     let file_name = get_relative_file_name(&context.current_directory, entry)?;
@@ -168,8 +149,8 @@ fn list_backup_files(context: &FileOperationContext,
             .filter(|entry|
                 entry.file_name().to_str().unwrap().starts_with(file_name.as_str()))
             .filter(|entry|
-                is_backup_file(&file_name.clone(),
-                               entry.file_name().to_str().unwrap())
+                backup::is_backup_file(&file_name.clone(),
+                                       entry.file_name().to_str().unwrap())
             )
             .into_iter()
             .collect()
@@ -249,29 +230,4 @@ pub fn remove_backup(_environment: &Environment,
     iterate_files(_environment.current_dir(),
                   &create_file_operation_context(_environment),
                   &remove_backup_operation)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn backup_file_pattern_test() {
-        assert_eq!(true, is_backup_file("test",
-                                        "test.bak.2020-01-01_12-01-01"));
-        assert_eq!(true, is_backup_file("test.bak",
-                                        "test.bak.bak.2020-01-01_12-01-01"));
-    }
-
-    #[test]
-    fn not_backup_file_pattern_test() {
-        assert_eq!(false, is_backup_file("test.txt",
-                                         "test.txt"));
-        assert_eq!(false, is_backup_file("test.txt",
-                                         "test.txt.bak"));
-        assert_eq!(false, is_backup_file("test.txt",
-                                         "test.txt.bak.2020-01-01"));
-        assert_eq!(false, is_backup_file("prefix",
-                                         "prefix_test.txt.bak.2020-01-01_12-01-01"));
-    }
 }

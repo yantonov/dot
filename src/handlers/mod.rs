@@ -59,12 +59,11 @@ fn create_backup_file(home_file_path: &Path,
         return Ok(());
     }
 
-    let backup_file_copy_path = backup::get_backup_file_path(home_file_path);
+    let backup_file_path = backup::get_backup_file_path(home_file_path);
 
-    std::fs::copy(home_file_path, backup_file_copy_path)
-        .map_err(|e| e.to_string())?;
-
-    Ok(())
+    std::fs::copy(home_file_path, backup_file_path)
+        .map(|_| ())
+        .map_err(|e| e.to_string())
 }
 
 fn create_parent_directory(home_file_path: &Path) -> Result<(), String> {

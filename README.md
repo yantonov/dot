@@ -28,10 +28,6 @@ Run the dot tool inside the config directory.
 4. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call utility manually from selected directories.
 
-
-##### Todo list:
-1. add command to remove backup files
-
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
 2. [dotfiles.github](https://dotfiles.github.io/)

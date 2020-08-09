@@ -14,16 +14,11 @@ fn iterate_files<C>(root: &PathBuf,
 ) -> Result<(), String> {
     for entry in WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
-        .into_iter() {
-        let e = entry
-            .map_err(|e| e.to_string());
-
-        if e.is_ok() {
-            let entry_value = e.unwrap();
-            if !entry_value.file_type().is_dir() {
-                let _ = file_operation(context, &entry_value);
-            }
-        }
+        .into_iter()
+        .filter(|entry| entry.is_ok())
+        .map(|entry| entry.unwrap())
+        .filter(|entry| !entry.file_type().is_dir()) {
+        let _ = file_operation(context, &entry);
     }
     Ok(())
 }

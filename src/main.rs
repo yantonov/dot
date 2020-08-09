@@ -1,6 +1,6 @@
 use std::result::Result;
 
-use crate::cli_arguments::Command::{Link, Unlink, List};
+use crate::cli_arguments::Command::{Link, List, ListBackup, Unlink};
 
 mod environment;
 mod cli_arguments;
@@ -15,6 +15,7 @@ fn main() -> Result<(), String> {
     match cli_arguments.command() {
         Link(_) => handlers::link(&environment, &logger),
         Unlink(_) => handlers::unlink(&environment, &logger),
-        List(_) => handlers::list(&environment, &logger)
+        List(_) => handlers::list(&environment, &logger),
+        ListBackup(_) => handlers::list_backup(&environment, &logger),
     }
 }

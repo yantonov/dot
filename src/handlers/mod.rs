@@ -2,6 +2,7 @@ use std::path::{Path, PathBuf};
 use std::result::Result;
 
 use chrono::Local;
+use regex::Regex;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::environment::Environment;
@@ -146,6 +147,41 @@ fn list_file_operation(_: &FileOperationContext,
     Ok(())
 }
 
+fn is_backup_file(file_name: &str) -> bool {
+    let re = Regex::new(r"(^.*\.bak\.\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}$)").unwrap();
+    re.is_match(file_name)
+}
+
+fn list_backup_operation(context: &FileOperationContext,
+                         entry: &DirEntry) -> Result<(), String> {
+    let file_name = get_relative_file_name(&context.current_directory, entry)?;
+
+    let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
+    let home_file_path = home_file_pathbuf.as_path();
+    let home_file_directory = home_file_path.parent().unwrap();
+
+    for entry in WalkDir::new(home_file_directory)
+        .max_depth(1)
+        .sort_by(|a, b| a.file_name().cmp(b.file_name()))
+        .into_iter() {
+        let e = entry
+            .map_err(|e| e.to_string());
+
+        if e.is_ok() {
+            let entry_value = e.unwrap();
+            if !entry_value.file_type().is_dir() {
+                let file_name = entry_value.file_name().to_str().unwrap();
+                if is_backup_file(file_name) {
+                    let file_path = entry_value.path().to_str().unwrap();
+                    println!("{}", file_path);
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+
 fn wrap_with_log<'a, C>(_logger: &'a Logger,
                         operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String> )) ->
                         impl Fn(&C, &DirEntry) -> Result<(), String> + 'a {
@@ -197,4 +233,33 @@ pub fn list(_environment: &Environment,
     iterate_files(&current_dir,
                   &context,
                   &list_file_operation)
+}
+
+pub fn list_backup(_environment: &Environment,
+                   _: &Logger) -> Result<(), String> {
+    let current_dir = _environment.current_dir();
+
+    let context = create_file_operation_context(_environment)?;
+
+    iterate_files(&current_dir,
+                  &context,
+                  &list_backup_operation)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn backup_file_pattern_test() {
+        assert_eq!(true, is_backup_file("test.bak.2020-01-01_12-01-01"));
+        assert_eq!(true, is_backup_file("test.bak.bak.2020-01-01_12-01-01"));
+    }
+
+    #[test]
+    fn not_backup_file_pattern_test() {
+        assert_eq!(false, is_backup_file("test.txt"));
+        assert_eq!(false, is_backup_file("test.txt.bak"));
+        assert_eq!(false, is_backup_file("test.txt.bak.2020-01-01"));
+    }
 }

@@ -17,6 +17,8 @@ pub enum Command {
     Unlink(Unlink),
     #[clap(about = "list files (recursively) inside the current directory")]
     List(List),
+    #[clap(about = "list backup files")]
+    ListBackup(ListBackup),
 }
 
 #[derive(Clap)]
@@ -27,6 +29,10 @@ pub struct Unlink {}
 
 #[derive(Clap)]
 pub struct List {}
+
+#[derive(Clap)]
+pub struct ListBackup {}
+
 
 pub struct Arguments {
     args: Opts

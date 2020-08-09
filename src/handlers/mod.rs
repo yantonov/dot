@@ -152,33 +152,46 @@ fn is_backup_file(file_name: &str) -> bool {
     re.is_match(file_name)
 }
 
-fn list_backup_operation(context: &FileOperationContext,
-                         entry: &DirEntry) -> Result<(), String> {
+fn list_backup_files(context: &FileOperationContext,
+                     entry: &DirEntry) -> Result<Vec<DirEntry>, String> {
     let file_name = get_relative_file_name(&context.current_directory, entry)?;
 
     let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
     let home_file_path = home_file_pathbuf.as_path();
     let home_file_directory = home_file_path.parent().unwrap();
 
-    for entry in WalkDir::new(home_file_directory)
-        .max_depth(1)
-        .sort_by(|a, b| a.file_name().cmp(b.file_name()))
-        .into_iter() {
-        let e = entry
-            .map_err(|e| e.to_string());
+    Ok(
+        WalkDir::new(home_file_directory)
+            .max_depth(1)
+            .sort_by(|a, b| a.file_name().cmp(b.file_name()))
+            .into_iter()
+            .filter(|entry| entry.is_ok())
+            .map(|entry| entry.unwrap())
+            .filter(|entry|
+                is_backup_file(entry.file_name().to_str().unwrap())
+            )
+            .into_iter()
+            .collect()
+    )
+}
 
-        if e.is_ok() {
-            let entry_value = e.unwrap();
-            if !entry_value.file_type().is_dir() {
-                let file_name = entry_value.file_name().to_str().unwrap();
-                if is_backup_file(file_name) {
-                    let file_path = entry_value.path().to_str().unwrap();
-                    println!("{}", file_path);
-                }
-            }
-        }
+fn list_backup_operation(context: &FileOperationContext,
+                         entry: &DirEntry) -> Result<(), String> {
+    let files = list_backup_files(context, entry)?;
+    for entry in files {
+        let file_path = entry.path().to_str().unwrap();
+        println!("{}", file_path);
     }
+    Ok(())
+}
 
+fn remove_backup_operation(context: &FileOperationContext,
+                           entry: &DirEntry) -> Result<(), String> {
+    let files = list_backup_files(context, entry)?;
+    for entry in files {
+        let file_path = entry.path();
+        let _ = std::fs::remove_file(file_path);
+    }
     Ok(())
 }
 
@@ -244,6 +257,17 @@ pub fn list_backup(_environment: &Environment,
     iterate_files(&current_dir,
                   &context,
                   &list_backup_operation)
+}
+
+pub fn remove_backup(_environment: &Environment,
+                     _: &Logger) -> Result<(), String> {
+    let current_dir = _environment.current_dir();
+
+    let context = create_file_operation_context(_environment)?;
+
+    iterate_files(&current_dir,
+                  &context,
+                  &remove_backup_operation)
 }
 
 #[cfg(test)]

@@ -19,6 +19,8 @@ pub enum Command {
     List(List),
     #[clap(about = "list backup files")]
     ListBackup(ListBackup),
+    #[clap(about = "remove backup files")]
+    RemoveBackup(RemoveBackup),
 }
 
 #[derive(Clap)]
@@ -32,6 +34,9 @@ pub struct List {}
 
 #[derive(Clap)]
 pub struct ListBackup {}
+
+#[derive(Clap)]
+pub struct RemoveBackup {}
 
 
 pub struct Arguments {

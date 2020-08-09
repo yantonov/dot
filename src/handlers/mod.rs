@@ -11,7 +11,7 @@ use crate::log::{Logger, LogLevel};
 fn iterate_files<C>(root: &PathBuf,
                     context: &C,
                     file_operation: &dyn Fn(&C, &DirEntry) -> Result<(), String>,
-) -> Result<(), String> {
+) {
     for entry in WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .into_iter()
@@ -20,7 +20,6 @@ fn iterate_files<C>(root: &PathBuf,
         .filter(|entry| !entry.file_type().is_dir()) {
         let _ = file_operation(context, &entry);
     }
-    Ok(())
 }
 
 struct FileOperationContext<'a> {
@@ -28,15 +27,14 @@ struct FileOperationContext<'a> {
     current_directory: &'a PathBuf,
 }
 
-fn create_file_operation_context(env: &Environment) -> Result<FileOperationContext, String> {
+fn create_file_operation_context(env: &Environment) -> FileOperationContext {
     let home = env.home_directory();
     let current_directory = env.current_dir();
 
-    Ok(
-        FileOperationContext {
-            home,
-            current_directory,
-        })
+    FileOperationContext {
+        home,
+        current_directory,
+    }
 }
 
 fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, String> {
@@ -219,10 +217,10 @@ fn wrap_with_log<'a, C>(_logger: &'a Logger,
 }
 
 pub fn link(_environment: &Environment,
-            _logger: &Logger) -> Result<(), String> {
+            _logger: &Logger) {
     let current_dir = _environment.current_dir();
 
-    let context = create_file_operation_context(_environment)?;
+    let context = create_file_operation_context(_environment);
 
     iterate_files(&current_dir,
                   &context,
@@ -230,10 +228,10 @@ pub fn link(_environment: &Environment,
 }
 
 pub fn unlink(_environment: &Environment,
-              _logger: &Logger) -> Result<(), String> {
+              _logger: &Logger) {
     let current_dir = _environment.current_dir();
 
-    let context = create_file_operation_context(_environment)?;
+    let context = create_file_operation_context(_environment);
 
     iterate_files(&current_dir,
                   &context,
@@ -241,10 +239,10 @@ pub fn unlink(_environment: &Environment,
 }
 
 pub fn list(_environment: &Environment,
-            _: &Logger) -> Result<(), String> {
+            _: &Logger) {
     let current_dir = _environment.current_dir();
 
-    let context = create_file_operation_context(_environment)?;
+    let context = create_file_operation_context(_environment);
 
     iterate_files(&current_dir,
                   &context,
@@ -252,10 +250,10 @@ pub fn list(_environment: &Environment,
 }
 
 pub fn list_backup(_environment: &Environment,
-                   _: &Logger) -> Result<(), String> {
+                   _: &Logger) {
     let current_dir = _environment.current_dir();
 
-    let context = create_file_operation_context(_environment)?;
+    let context = create_file_operation_context(_environment);
 
     iterate_files(&current_dir,
                   &context,
@@ -263,10 +261,10 @@ pub fn list_backup(_environment: &Environment,
 }
 
 pub fn remove_backup(_environment: &Environment,
-                     _: &Logger) -> Result<(), String> {
+                     _: &Logger) {
     let current_dir = _environment.current_dir();
 
-    let context = create_file_operation_context(_environment)?;
+    let context = create_file_operation_context(_environment);
 
     iterate_files(&current_dir,
                   &context,

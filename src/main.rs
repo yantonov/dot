@@ -1,5 +1,3 @@
-use std::result::Result;
-
 use crate::cli_arguments::Command::{Link, List, ListBackup, RemoveBackup, Unlink};
 
 mod environment;
@@ -7,7 +5,7 @@ mod cli_arguments;
 mod handlers;
 mod log;
 
-fn main() -> Result<(), String> {
+fn main() {
     let environment = environment::system_environment();
     let cli_arguments = cli_arguments::arguments();
     let logger = log::create(cli_arguments.verbose());

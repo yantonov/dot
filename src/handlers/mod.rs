@@ -218,56 +218,36 @@ fn wrap_with_log<'a, C>(_logger: &'a Logger,
 
 pub fn link(_environment: &Environment,
             _logger: &Logger) {
-    let current_dir = _environment.current_dir();
-
-    let context = create_file_operation_context(_environment);
-
-    iterate_files(&current_dir,
-                  &context,
+    iterate_files(_environment.current_dir(),
+                  &create_file_operation_context(_environment),
                   &wrap_with_log(_logger, &link_file_operation))
 }
 
 pub fn unlink(_environment: &Environment,
               _logger: &Logger) {
-    let current_dir = _environment.current_dir();
-
-    let context = create_file_operation_context(_environment);
-
-    iterate_files(&current_dir,
-                  &context,
+    iterate_files(_environment.current_dir(),
+                  &create_file_operation_context(_environment),
                   &wrap_with_log(_logger, &unlink_file_operation))
 }
 
 pub fn list(_environment: &Environment,
             _: &Logger) {
-    let current_dir = _environment.current_dir();
-
-    let context = create_file_operation_context(_environment);
-
-    iterate_files(&current_dir,
-                  &context,
+    iterate_files(_environment.current_dir(),
+                  &create_file_operation_context(_environment),
                   &list_file_operation)
 }
 
 pub fn list_backup(_environment: &Environment,
                    _: &Logger) {
-    let current_dir = _environment.current_dir();
-
-    let context = create_file_operation_context(_environment);
-
-    iterate_files(&current_dir,
-                  &context,
+    iterate_files(_environment.current_dir(),
+                  &create_file_operation_context(_environment),
                   &list_backup_operation)
 }
 
 pub fn remove_backup(_environment: &Environment,
                      _: &Logger) {
-    let current_dir = _environment.current_dir();
-
-    let context = create_file_operation_context(_environment);
-
-    iterate_files(&current_dir,
-                  &context,
+    iterate_files(_environment.current_dir(),
+                  &create_file_operation_context(_environment),
                   &remove_backup_operation)
 }
 

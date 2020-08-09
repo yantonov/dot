@@ -161,8 +161,7 @@ fn list_backup_operation(context: &FileOperationContext,
                          entry: &DirEntry) -> Result<(), String> {
     let files = list_backup_files(context, entry)?;
     for entry in files {
-        let file_path = entry.path().to_str().unwrap();
-        println!("{}", file_path);
+        println!("{}", entry.path().to_str().unwrap());
     }
     Ok(())
 }
@@ -171,8 +170,7 @@ fn remove_backup_operation(context: &FileOperationContext,
                            entry: &DirEntry) -> Result<(), String> {
     let files = list_backup_files(context, entry)?;
     for entry in files {
-        let file_path = entry.path();
-        let _ = std::fs::remove_file(file_path);
+        let _ = std::fs::remove_file(entry.path());
     }
     Ok(())
 }

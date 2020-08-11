@@ -130,23 +130,22 @@ fn list_file_operation(_: &FileOperationContext,
 
 fn list_backup_files(context: &FileOperationContext,
                      entry: &DirEntry) -> Result<Vec<DirEntry>, String> {
-    let file_name = get_relative_file_name(&context.current_directory, entry)?;
+    let file_name = entry.file_name().to_str().unwrap();
+    let relative_file_name = get_relative_file_name(&context.current_directory, entry)?;
 
     let home_file_pathbuf = Path::join(
         Path::new(&context.home),
-        file_name.clone());
+        relative_file_name);
     let home_file_path = home_file_pathbuf.as_path();
-    let home_file_directory = home_file_path.parent().unwrap();
+    let file_directory = home_file_path.parent().unwrap();
 
     Ok(
-        WalkDir::new(home_file_directory)
+        WalkDir::new(file_directory)
             .max_depth(1)
             .sort_by(|a, b| a.file_name().cmp(b.file_name()))
             .into_iter()
             .filter(|entry| entry.is_ok())
             .map(|entry| entry.unwrap())
-            .filter(|entry|
-                entry.file_name().to_str().unwrap().starts_with(file_name.as_str()))
             .filter(|entry|
                 backup::is_backup_file(&file_name.clone(),
                                        entry.file_name().to_str().unwrap())

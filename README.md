@@ -30,9 +30,9 @@ Corresponding settings can be versioned in separate directories as you like and 
 
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
-2. [dotfiles.github](https://dotfiles.github.io/)
-3. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
-4. [dotfiles](https://github.com/holman/dotfiles)
-5. [homesick](https://github.com/technicalpickles/homesick)
+2. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
+3. [dotfiles](https://github.com/holman/dotfiles)
+4. [homesick](https://github.com/technicalpickles/homesick)
+5. [dotfiles.github](https://dotfiles.github.io/)
 
 Thanks to all of these projects for the idea!

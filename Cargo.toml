@@ -3,6 +3,8 @@ name = "dot"
 version = "0.1.11"
 authors = ["Yury Antonov <yantonov@yandex.ru>"]
 edition = "2018"
+description = "Helps to use dot files from the version control system"
+license = "Apache-2.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 

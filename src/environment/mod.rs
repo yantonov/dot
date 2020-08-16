@@ -20,15 +20,14 @@ struct SystemEnvironment {}
 
 impl SystemEnvironment {
     fn current_dir(&self) -> Result<PathBuf, String> {
-        let current_dir = env::current_dir()
-            .map_err(|_| "cannot get current directory")?;
-        Ok(current_dir)
+        env::current_dir()
+            .map_err(|_| "cannot get current directory".to_string())
     }
 
     fn home_directory(&self) -> Result<PathBuf, &str> {
-        return env::var("HOME")
+        env::var("HOME")
             .map(|home| Path::new(&home).to_path_buf())
-            .map_err(|_| "HOME environment variable is not defined");
+            .map_err(|_| "HOME environment variable is not defined")
     }
 }
 

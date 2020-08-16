@@ -13,7 +13,7 @@ Backup files will be generated before the creation of symbolic links.
 No specific layout (directory structure) or additional configuration files are required, just run the program inside the directory which contains your dot files.  
 
 #### Installation
-1. Put the binary file into PATH
+1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) into PATH
 2. Use it from any directory (from your git repository or any other folder)
 
 #### Examples

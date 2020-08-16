@@ -1,6 +1,6 @@
 [package]
 name = "dot"
-version = "0.1.11"
+version = "0.1.12"
 authors = ["Yury Antonov <yantonov@yandex.ru>"]
 edition = "2018"
 description = "Helps to use dot files from the version control system"

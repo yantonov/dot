@@ -138,7 +138,7 @@ fn list_backup_files(context: &FileOperationContext,
         relative_file_name);
     let home_file_path = home_file_pathbuf.as_path();
     let file_directory = home_file_path.parent().unwrap();
-
+    let backup_checker = backup::is_backup_file(&file_name.clone());
     Ok(
         WalkDir::new(file_directory)
             .max_depth(1)
@@ -147,8 +147,7 @@ fn list_backup_files(context: &FileOperationContext,
             .filter(|entry| entry.is_ok())
             .map(|entry| entry.unwrap())
             .filter(|entry|
-                backup::is_backup_file(&file_name.clone(),
-                                       entry.file_name().to_str().unwrap())
+                backup_checker(entry.file_name().to_str().unwrap())
             )
             .into_iter()
             .collect()

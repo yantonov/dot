@@ -1,9 +1,9 @@
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 pub struct Environment {
     current_dir: PathBuf,
-    home_directory: String,
+    home_directory: PathBuf,
 }
 
 impl Environment {
@@ -11,7 +11,7 @@ impl Environment {
         &self.current_dir
     }
 
-    pub fn home_directory(&self) -> &String {
+    pub fn home_directory(&self) -> &PathBuf {
         &self.home_directory
     }
 }
@@ -19,14 +19,15 @@ impl Environment {
 struct SystemEnvironment {}
 
 impl SystemEnvironment {
-    pub fn current_dir(&self) -> Result<PathBuf, String> {
+    fn current_dir(&self) -> Result<PathBuf, String> {
         let current_dir = env::current_dir()
             .map_err(|_| "cannot get current directory")?;
         Ok(current_dir)
     }
 
-    pub fn home_directory(&self) -> Result<String, &str> {
+    fn home_directory(&self) -> Result<PathBuf, &str> {
         return env::var("HOME")
+            .map(|home| Path::new(&home).to_path_buf())
             .map_err(|_| "HOME environment variable is not defined");
     }
 }

@@ -23,7 +23,7 @@ fn iterate_files<C>(root: &PathBuf,
 }
 
 struct FileOperationContext<'a> {
-    home: &'a String,
+    home: &'a PathBuf,
     current_directory: &'a PathBuf,
 }
 

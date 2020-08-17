@@ -24,10 +24,10 @@ impl SystemEnvironment {
             .map_err(|_| "cannot get current directory".to_string())
     }
 
-    fn home_directory(&self) -> Result<PathBuf, &str> {
+    fn home_directory(&self) -> Result<PathBuf, String> {
         env::var("HOME")
             .map(|home| Path::new(&home).to_path_buf())
-            .map_err(|_| "HOME environment variable is not defined")
+            .map_err(|_| "HOME environment variable is not defined".to_string())
     }
 }
 

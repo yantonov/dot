@@ -172,57 +172,57 @@ fn remove_backup_operation(context: &FileOperationContext,
     Ok(())
 }
 
-fn wrap_with_log<'a, C>(_logger: &'a Logger,
+fn wrap_with_log<'a, C>(logger: &'a Logger,
                         operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String> )) ->
                         impl Fn(&C, &DirEntry) -> Result<(), String> + 'a {
     move |context: &C, entry_value: &DirEntry| {
         let result = operation(context, &entry_value);
         let entry_path_str = entry_value.path().to_str().unwrap();
         if result.is_err() {
-            _logger.log(LogLevel::Error,
-                        &format!("{} - {}",
+            logger.log(LogLevel::Error,
+                       &format!("{} - {}",
                                  entry_path_str,
                                  result.unwrap_err()))
         } else {
-            _logger.log(LogLevel::Info,
-                        &format!("{}",
+            logger.log(LogLevel::Info,
+                       &format!("{}",
                                  entry_path_str))
         }
         Ok(())
     }
 }
 
-pub fn link(_environment: &Environment,
-            _logger: &Logger) {
-    iterate_files(_environment.current_dir(),
-                  &create_file_operation_context(_environment),
-                  &wrap_with_log(_logger, &link_file_operation))
+pub fn link(environment: &Environment,
+            logger: &Logger) {
+    iterate_files(environment.current_dir(),
+                  &create_file_operation_context(environment),
+                  &wrap_with_log(logger, &link_file_operation))
 }
 
-pub fn unlink(_environment: &Environment,
-              _logger: &Logger) {
-    iterate_files(_environment.current_dir(),
-                  &create_file_operation_context(_environment),
-                  &wrap_with_log(_logger, &unlink_file_operation))
+pub fn unlink(environment: &Environment,
+              logger: &Logger) {
+    iterate_files(environment.current_dir(),
+                  &create_file_operation_context(environment),
+                  &wrap_with_log(logger, &unlink_file_operation))
 }
 
-pub fn list(_environment: &Environment,
+pub fn list(environment: &Environment,
             _: &Logger) {
-    iterate_files(_environment.current_dir(),
-                  &create_file_operation_context(_environment),
+    iterate_files(environment.current_dir(),
+                  &create_file_operation_context(environment),
                   &list_file_operation)
 }
 
-pub fn list_backup(_environment: &Environment,
+pub fn list_backup(environment: &Environment,
                    _: &Logger) {
-    iterate_files(_environment.current_dir(),
-                  &create_file_operation_context(_environment),
+    iterate_files(environment.current_dir(),
+                  &create_file_operation_context(environment),
                   &list_backup_operation)
 }
 
-pub fn remove_backup(_environment: &Environment,
+pub fn remove_backup(environment: &Environment,
                      _: &Logger) {
-    iterate_files(_environment.current_dir(),
-                  &create_file_operation_context(_environment),
+    iterate_files(environment.current_dir(),
+                  &create_file_operation_context(environment),
                   &remove_backup_operation)
 }

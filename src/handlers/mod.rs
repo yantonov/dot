@@ -22,14 +22,14 @@ fn iterate_files<C>(root: &PathBuf,
     }
 }
 
-struct FileOperationContext<'a> {
-    home: &'a PathBuf,
-    current_directory: &'a PathBuf,
+struct FileOperationContext {
+    home: PathBuf,
+    current_directory: PathBuf,
 }
 
 fn create_file_operation_context(env: &Environment) -> FileOperationContext {
-    let home = env.home_directory();
-    let current_directory = env.current_dir();
+    let home = env.home_directory().clone();
+    let current_directory = env.current_dir().clone();
 
     FileOperationContext {
         home,
@@ -181,12 +181,12 @@ fn wrap_with_log<'a, C>(logger: &'a Logger,
         if result.is_err() {
             logger.log(LogLevel::Error,
                        &format!("{} - {}",
-                                 entry_path_str,
-                                 result.unwrap_err()))
+                                entry_path_str,
+                                result.unwrap_err()))
         } else {
             logger.log(LogLevel::Info,
                        &format!("{}",
-                                 entry_path_str))
+                                entry_path_str))
         }
         Ok(())
     }

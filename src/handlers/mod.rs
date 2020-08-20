@@ -8,9 +8,15 @@ use crate::log::{Logger, LogLevel};
 
 mod backup;
 
-fn iterate_files<C>(root: &PathBuf,
-                    context: &C,
-                    file_operation: &dyn Fn(&C, &DirEntry) -> Result<(), String>,
+trait FileOperation {
+    type Context;
+
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String>;
+}
+
+fn iterate_files<TContext>(root: &PathBuf,
+                           context: &TContext,
+                           file_operation: &dyn FileOperation<Context=TContext>,
 ) {
     for entry in WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
@@ -18,7 +24,7 @@ fn iterate_files<C>(root: &PathBuf,
         .filter(|entry| entry.is_ok())
         .map(|entry| entry.unwrap())
         .filter(|entry| !entry.file_type().is_dir()) {
-        let _ = file_operation(context, &entry);
+        let _ = file_operation.call(context, &entry);
     }
 }
 
@@ -27,13 +33,15 @@ struct FileOperationContext {
     current_directory: PathBuf,
 }
 
-fn create_file_operation_context(env: &Environment) -> FileOperationContext {
-    let home = env.home_directory().clone();
-    let current_directory = env.current_dir().clone();
+impl FileOperationContext {
+    pub fn create(env: &Environment) -> FileOperationContext {
+        let home = env.home_directory().clone();
+        let current_directory = env.current_dir().clone();
 
-    FileOperationContext {
-        home,
-        current_directory,
+        FileOperationContext {
+            home,
+            current_directory,
+        }
     }
 }
 
@@ -49,83 +57,102 @@ fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, Strin
     }
 }
 
-fn create_backup_file(home_file_path: &Path,
-                      repository_path: &Path) -> Result<(), String> {
-    if !home_file_path.exists() {
-        return Ok(());
-    }
-    let link = std::fs::read_link(home_file_path);
-    if link.is_ok() && link.unwrap().as_path() == repository_path {
-        return Ok(());
-    }
+struct LinkFileOperation {}
 
-    let backup_file_path = backup::get_backup_file_path(home_file_path);
-
-    std::fs::copy(home_file_path, backup_file_path)
-        .map(|_| ())
-        .map_err(|e| e.to_string())
-}
-
-fn create_parent_directory(home_file_path: &Path) -> Result<(), String> {
-    let home_file_path_parent_dir = home_file_path.parent()
-        .unwrap();
-    if !home_file_path_parent_dir.exists() {
-        std::fs::create_dir_all(home_file_path_parent_dir)
-            .map_err(|e| e.to_string())?;
-    }
-    Ok(())
-}
-
-fn link_file_operation(context: &FileOperationContext,
-                       entry: &DirEntry) -> Result<(), String> {
-    let file_name = get_relative_file_name(&context.current_directory, entry)?;
-
-    let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
-    let home_file_path = home_file_pathbuf.as_path();
-    let repository_file_path = entry.path();
-
-    create_parent_directory(&home_file_path)?;
-
-    create_backup_file(&home_file_path, &repository_file_path)?;
-
-    if home_file_path.exists() {
-        std::fs::remove_file(home_file_path)
-            .map_err(|e| e.to_string())?;
-    }
-    symlink::symlink_file(repository_file_path, &home_file_path)
-        .map_err(|e| e.to_string())?;
-
-    Ok(())
-}
-
-fn unlink_file_operation(context: &FileOperationContext,
-                         entry: &DirEntry) -> Result<(), String> {
-    let file_name = get_relative_file_name(&context.current_directory, entry)?;
-
-    let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
-    let home_file_path = home_file_pathbuf.as_path();
-    let repository_file_path = entry.path();
-    if home_file_path.exists() {
+impl LinkFileOperation {
+    fn create_backup_file(&self,
+                          home_file_path: &Path,
+                          repository_path: &Path) -> Result<(), String> {
+        if !home_file_path.exists() {
+            return Ok(());
+        }
         let link = std::fs::read_link(home_file_path);
-        if link.is_ok() {
-            if link.unwrap().as_path() == entry.path() {
-                std::fs::remove_file(home_file_path)
-                    .map_err(|e| e.to_string())?;
-                std::fs::copy(repository_file_path, home_file_path)
-                    .map_err(|e| e.to_string())?;
+        if link.is_ok() && link.unwrap().as_path() == repository_path {
+            return Ok(());
+        }
+
+        let backup_file_path = backup::get_backup_file_path(home_file_path);
+
+        std::fs::copy(home_file_path, backup_file_path)
+            .map(|_| ())
+            .map_err(|e| e.to_string())
+    }
+
+    fn create_parent_directory(&self,
+                               home_file_path: &Path) -> Result<(), String> {
+        let home_file_path_parent_dir = home_file_path.parent()
+            .unwrap();
+        if !home_file_path_parent_dir.exists() {
+            std::fs::create_dir_all(home_file_path_parent_dir)
+                .map_err(|e| e.to_string())?;
+        }
+        Ok(())
+    }
+}
+
+impl FileOperation for LinkFileOperation {
+    type Context = FileOperationContext;
+
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let file_name = get_relative_file_name(&context.current_directory, entry)?;
+
+        let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
+        let home_file_path = home_file_pathbuf.as_path();
+        let repository_file_path = entry.path();
+
+        self.create_parent_directory(&home_file_path)?;
+
+        self.create_backup_file(&home_file_path, &repository_file_path)?;
+
+        if home_file_path.exists() {
+            std::fs::remove_file(home_file_path)
+                .map_err(|e| e.to_string())?;
+        }
+        symlink::symlink_file(repository_file_path, &home_file_path)
+            .map_err(|e| e.to_string())?;
+
+        Ok(())
+    }
+}
+
+struct UnlinkFileOperation {}
+
+impl FileOperation for UnlinkFileOperation {
+    type Context = FileOperationContext;
+
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let file_name = get_relative_file_name(&context.current_directory, entry)?;
+
+        let home_file_pathbuf = Path::join(Path::new(&context.home), file_name);
+        let home_file_path = home_file_pathbuf.as_path();
+        let repository_file_path = entry.path();
+        if home_file_path.exists() {
+            let link = std::fs::read_link(home_file_path);
+            if link.is_ok() {
+                if link.unwrap().as_path() == entry.path() {
+                    std::fs::remove_file(home_file_path)
+                        .map_err(|e| e.to_string())?;
+                    std::fs::copy(repository_file_path, home_file_path)
+                        .map_err(|e| e.to_string())?;
+                }
             }
         }
+        Ok(())
     }
-    Ok(())
 }
 
-fn list_file_operation(_: &FileOperationContext,
-                       entry: &DirEntry) -> Result<(), String> {
-    let repository_file_path = entry.path();
-    if let Some(value) = repository_file_path.to_str() {
-        println!("{}", value);
+struct ListFileOperation {}
+
+impl FileOperation for ListFileOperation {
+    type Context = FileOperationContext;
+
+    fn call(&self, _: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let repository_file_path = entry.path();
+        if let Some(value) = repository_file_path.to_str() {
+            println!("{}", value);
+        }
+        Ok(())
     }
-    Ok(())
 }
 
 fn list_backup_files(context: &FileOperationContext,
@@ -154,75 +181,98 @@ fn list_backup_files(context: &FileOperationContext,
     )
 }
 
-fn list_backup_operation(context: &FileOperationContext,
-                         entry: &DirEntry) -> Result<(), String> {
-    let files = list_backup_files(context, entry)?;
-    for entry in files {
-        println!("{}", entry.path().to_str().unwrap());
-    }
-    Ok(())
-}
+struct ListBackupOperation {}
 
-fn remove_backup_operation(context: &FileOperationContext,
-                           entry: &DirEntry) -> Result<(), String> {
-    let files = list_backup_files(context, entry)?;
-    for entry in files {
-        let _ = std::fs::remove_file(entry.path());
-    }
-    Ok(())
-}
+impl FileOperation for ListBackupOperation {
+    type Context = FileOperationContext;
 
-fn wrap_with_log<'a, C>(logger: &'a Logger,
-                        operation: &'a (dyn Fn(&C, &DirEntry) -> Result<(), String> )) ->
-                        impl Fn(&C, &DirEntry) -> Result<(), String> + 'a {
-    move |context: &C, entry_value: &DirEntry| {
-        let result = operation(context, &entry_value);
-        let entry_path_str = entry_value.path().to_str().unwrap();
-        if result.is_err() {
-            logger.log(LogLevel::Error,
-                       &format!("{} - {}",
-                                entry_path_str,
-                                result.unwrap_err()))
-        } else {
-            logger.log(LogLevel::Info,
-                       &format!("{}",
-                                entry_path_str))
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let files = list_backup_files(context, entry)?;
+        for entry in files {
+            println!("{}", entry.path().to_str().unwrap());
         }
         Ok(())
     }
 }
 
+struct RemoveBackupOperation {}
+
+impl FileOperation for RemoveBackupOperation {
+    type Context = FileOperationContext;
+
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let files = list_backup_files(context, entry)?;
+        for entry in files {
+            let _ = std::fs::remove_file(entry.path());
+        }
+        Ok(())
+    }
+}
+
+struct LoggedOperation<'a, TContext> {
+    logger: &'a Logger,
+    operation: &'a dyn FileOperation<Context=TContext>,
+}
+
+impl FileOperation for LoggedOperation<'_, FileOperationContext> {
+    type Context = FileOperationContext;
+
+    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+        let result = self.operation.call(context, &entry);
+        let entry_path_str = entry.path().to_str().unwrap();
+        if result.is_err() {
+            self.logger.log(LogLevel::Error,
+                            &format!("{} - {}",
+                                     entry_path_str,
+                                     result.unwrap_err()))
+        } else {
+            self.logger.log(LogLevel::Info,
+                            &format!("{}",
+                                     entry_path_str))
+        }
+        Ok(())
+    }
+}
+
+fn file_iteration_handler(environment: &Environment,
+                          operation: &dyn FileOperation<Context=FileOperationContext>) {
+    iterate_files(environment.current_dir(),
+                  &FileOperationContext::create(environment),
+                  operation)
+}
+
 pub fn link(environment: &Environment,
             logger: &Logger) {
-    iterate_files(environment.current_dir(),
-                  &create_file_operation_context(environment),
-                  &wrap_with_log(logger, &link_file_operation))
+    file_iteration_handler(environment,
+                           &LoggedOperation {
+                               logger,
+                               operation: &LinkFileOperation {},
+                           })
 }
 
 pub fn unlink(environment: &Environment,
               logger: &Logger) {
-    iterate_files(environment.current_dir(),
-                  &create_file_operation_context(environment),
-                  &wrap_with_log(logger, &unlink_file_operation))
+    file_iteration_handler(environment,
+                           &LoggedOperation {
+                               logger,
+                               operation: &UnlinkFileOperation {},
+                           })
 }
 
 pub fn list(environment: &Environment,
             _: &Logger) {
-    iterate_files(environment.current_dir(),
-                  &create_file_operation_context(environment),
-                  &list_file_operation)
+    file_iteration_handler(environment,
+                           &ListFileOperation {})
 }
 
 pub fn list_backup(environment: &Environment,
                    _: &Logger) {
-    iterate_files(environment.current_dir(),
-                  &create_file_operation_context(environment),
-                  &list_backup_operation)
+    file_iteration_handler(environment,
+                           &ListBackupOperation {})
 }
 
 pub fn remove_backup(environment: &Environment,
                      _: &Logger) {
-    iterate_files(environment.current_dir(),
-                  &create_file_operation_context(environment),
-                  &remove_backup_operation)
+    file_iteration_handler(environment,
+                           &RemoveBackupOperation {})
 }

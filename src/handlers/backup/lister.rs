@@ -16,7 +16,7 @@ pub fn list_backup_files(context: &FileOperationContext,
         relative_file_name);
     let home_file_path = home_file_pathbuf.as_path();
     let file_directory = home_file_path.parent().unwrap();
-    let backup_checker = is_backup_file(&file_name.clone());
+    let backup_checker = is_backup_file(&file_name);
     Ok(
         WalkDir::new(file_directory)
             .max_depth(1)

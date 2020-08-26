@@ -17,10 +17,8 @@ pub enum Command {
     Unlink(Unlink),
     #[clap(about = "list files (recursively) inside the current directory", display_order = 2)]
     List(List),
-    #[clap(about = "list backup files", display_order = 3)]
-    ListBackup(ListBackup),
-    #[clap(about = "remove backup files", display_order = 4)]
-    RemoveBackup(RemoveBackup),
+    #[clap(about = "backup commands", display_order = 3)]
+    Backup(Backup),
 }
 
 #[derive(Clap)]
@@ -31,6 +29,26 @@ pub struct Unlink {}
 
 #[derive(Clap)]
 pub struct List {}
+
+#[derive(Clap)]
+pub struct Backup {
+    #[clap(subcommand)]
+    subcommand: BackupSubcommand
+}
+
+impl Backup {
+    pub fn backup_subcommand(&self) -> &BackupSubcommand {
+        return &self.subcommand;
+    }
+}
+
+#[derive(Clap)]
+pub enum BackupSubcommand {
+    #[clap(about = "list backup files", display_order = 0)]
+    List(ListBackup),
+    #[clap(about = "remove backup files", display_order = 1)]
+    Remove(RemoveBackup),
+}
 
 #[derive(Clap)]
 pub struct ListBackup {}

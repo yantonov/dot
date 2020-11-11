@@ -20,6 +20,8 @@ No specific layout (directory structure) or additional configuration files are r
 You must have additional privileges to create symbolic links.
 You can set permissions here:
 Configuration \ Windows Settings \ Security Settings \ Local Policies \ User Rights Assignment\ Create symbolic links
+By default Administrator can create symbolic links.
+Make sure you run Git bash / Power shell / Cmd as administrator.
 
 #### Examples
 1. [some bash files](https://github.com/yantonov/sh)  

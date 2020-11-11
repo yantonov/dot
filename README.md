@@ -16,6 +16,11 @@ No specific layout (directory structure) or additional configuration files are r
 1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) into PATH
 2. Use it from any directory (from your git repository or any other folder)
 
+### Windows specifics
+You must have additional privileges to create symbolic links.
+You can set permissions here:
+Configuration \ Windows Settings \ Security Settings \ Local Policies \ User Rights Assignment\ Create symbolic links
+
 #### Examples
 1. [some bash files](https://github.com/yantonov/sh)  
 Run the dot tool inside the mac/dotfiles directory.

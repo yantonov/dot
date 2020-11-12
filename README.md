@@ -33,8 +33,8 @@ Run the dot tool inside the config directory.
 
 ##### Some tecnhical notes: 
 1. The app is distributed as single binary to simplify the installation process.
-2. All logic is implemented in rust, it helps to remove any issues with scripting languages and setting environment (bash was not considered because long bash scripts are not easy to maintain).
-3. This implementation supports simplest scenario to create symlinks, restore regular file and creating backup files before any symlink is introduced.
+2. All logic is implemented in rust, it helps to remove any issues with scripting languages and setting environment (bash was not considered because long bash scripts are hard to maintain).
+3. This implementation supports simplest scenario to create symlinks, restore regular file and creating backup files before any any symlink is introduced.
 4. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call utility manually from selected directories.
 5. There is no idea to reimplement inside this tool some functionaly of version control system (to add/remove tracked files, checking changes etc), or ansible (to distribute dot files betwween multiple devices/instances).

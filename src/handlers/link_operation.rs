@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use walkdir::DirEntry;
 
@@ -12,19 +12,20 @@ pub struct LinkFileOperation {}
 impl LinkFileOperation {
     fn create_backup_file(&self,
                           home_file_path: &Path,
-                          repository_path: &Path) -> Result<(), String> {
+                          repository_path: &Path) -> Result<Option<PathBuf>, String> {
         if !home_file_path.exists() {
-            return Ok(());
+            return Ok(None);
         }
         let link = std::fs::read_link(home_file_path);
         if link.is_ok() && link.unwrap().as_path() == repository_path {
-            return Ok(());
+            return Ok(None);
         }
 
         let backup_file_path = get_backup_file_path(home_file_path);
+        let backup_file_path_result = backup_file_path.clone();
 
         std::fs::copy(home_file_path, backup_file_path)
-            .map(|_| ())
+            .map(|_| Some(backup_file_path_result))
             .map_err(|e| e.to_string())
     }
 
@@ -52,7 +53,7 @@ impl FileOperation for LinkFileOperation {
 
         self.create_parent_directory(&home_file_path)?;
 
-        self.create_backup_file(&home_file_path, &repository_file_path)?;
+        let backup_file_result = self.create_backup_file(&home_file_path, &repository_file_path)?;
 
         // it is important to check whether this is
         // a) regular file
@@ -62,9 +63,20 @@ impl FileOperation for LinkFileOperation {
             std::fs::remove_file(home_file_path)
                 .map_err(|e| e.to_string())?;
         }
-        symlink::symlink_file(repository_file_path, &home_file_path)
-            .map_err(|e| e.to_string())?;
-
-        Ok(())
+        match symlink::symlink_file(repository_file_path, &home_file_path) {
+            Ok(_) => {
+                Ok(())
+            }
+            Err(e) => {
+                match backup_file_result {
+                    None => {}
+                    Some(backup_file) => {
+                        std::fs::copy(backup_file.as_path(), home_file_path)
+                            .map_err(|e| e.to_string())?;
+                    }
+                }
+                Err(e.to_string())
+            }
+        }
     }
 }

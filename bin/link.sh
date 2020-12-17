@@ -11,4 +11,5 @@ fi
 
 echo 'Create new link'
 ln -s $(pwd)/target/release/dot ${TARGET}
+
 echo 'Done'

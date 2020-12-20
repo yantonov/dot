@@ -3,7 +3,9 @@ set -eu
 
 cd "$(dirname "$0")/.."
 
-TARGET="${HOME}/bin/dot"
+EXECUTABLE_NAME="$(basename $(pwd))"
+
+TARGET="${HOME}/bin/${EXECUTABLE_NAME}"
 if [ -L "${TARGET}" ]; then
     echo 'Remove old link'
     rm "${TARGET}"

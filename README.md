@@ -37,7 +37,7 @@ Run the dot tool inside the config directory.
 3. This implementation supports simplest scenario to create symlinks, restore regular file and creating backup files before any any symlink is introduced.
 4. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call utility manually from selected directories.
-5. There is no idea to reimplement inside this tool some functionaly of version control system (to add/remove tracked files, checking changes etc), or ansible (to distribute dot files betwween multiple devices/instances).
+5. There is no idea to reimplement inside this tool some functionaly of version control system (to add/remove tracked files, checking changes etc), or ansible (to distribute dot files between multiple devices/instances).
 
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)

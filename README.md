@@ -45,5 +45,6 @@ Corresponding settings can be versioned in separate directories as you like and 
 3. [dotfiles](https://github.com/holman/dotfiles)
 4. [homesick](https://github.com/technicalpickles/homesick)
 5. [dotfiles.github](https://dotfiles.github.io/)
+6. [atlassian.dotfiles bare git repo](https://www.atlassian.com/git/tutorials/dotfiles) (nice, but it is hard to use dotfiles that are splitted into different repositories)
 
 Thanks to all of these projects for the idea!

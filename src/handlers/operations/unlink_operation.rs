@@ -2,9 +2,9 @@ use std::path::Path;
 
 use walkdir::DirEntry;
 
-use crate::handlers::file_operation::FileOperation;
-use crate::handlers::file_operation_context::FileOperationContext;
-use crate::handlers::file_utils::get_relative_file_name;
+use crate::handlers::utils::file_operation::FileOperation;
+use crate::handlers::utils::file_operation_context::FileOperationContext;
+use crate::handlers::utils::file_utils::get_relative_file_name;
 
 pub struct UnlinkFileOperation {}
 

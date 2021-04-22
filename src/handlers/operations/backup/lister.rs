@@ -2,9 +2,9 @@ use std::path::Path;
 
 use walkdir::{DirEntry, WalkDir};
 
-use crate::handlers::backup::name_convention::is_backup_file;
-use crate::handlers::file_operation_context::FileOperationContext;
-use crate::handlers::file_utils::get_relative_file_name;
+use crate::handlers::utils::file_operation_context::FileOperationContext;
+use crate::handlers::utils::file_utils::get_relative_file_name;
+use crate::handlers::operations::backup::name_convention::is_backup_file;
 
 pub fn list_backup_files(context: &FileOperationContext,
                          entry: &DirEntry) -> Result<Vec<DirEntry>, String> {

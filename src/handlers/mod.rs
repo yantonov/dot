@@ -1,25 +1,17 @@
-use link_operation::LinkFileOperation;
-use list_backup_operation::ListBackupOperation;
-use list_operation::ListFileOperation;
-use logged_operation::LoggedOperation;
-use remove_backup_operation::RemoveBackupOperation;
-use unlink_operation::UnlinkFileOperation;
+use operations::link_operation::LinkFileOperation;
+use operations::list_backup_operation::ListBackupOperation;
+use operations::list_operation::ListFileOperation;
+use operations::remove_backup_operation::RemoveBackupOperation;
+use operations::unlink_operation::UnlinkFileOperation;
+use utils::logged_operation::LoggedOperation;
 
 use crate::environment::Environment;
-use crate::handlers::file_operation::{FileOperation, iterate_files};
-use crate::handlers::file_operation_context::FileOperationContext;
 use crate::log::Logger;
+use crate::handlers::utils::file_operation::{iterate_files, FileOperation};
+use crate::handlers::utils::file_operation_context::FileOperationContext;
 
-mod file_operation;
-mod file_operation_context;
-mod logged_operation;
-mod link_operation;
-mod unlink_operation;
-mod list_operation;
-mod list_backup_operation;
-mod remove_backup_operation;
-mod backup;
-mod file_utils;
+mod operations;
+mod utils;
 
 fn file_iteration_handler(environment: &Environment,
                           operation: &dyn FileOperation<Context=FileOperationContext>) {

@@ -1,6 +1,6 @@
-use crate::handlers::file_operation::FileOperation;
-use crate::handlers::file_operation_context::FileOperationContext;
 use walkdir::DirEntry;
+use crate::handlers::utils::file_operation::FileOperation;
+use crate::handlers::utils::file_operation_context::FileOperationContext;
 
 pub struct ListFileOperation {}
 

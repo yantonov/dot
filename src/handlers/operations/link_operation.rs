@@ -2,10 +2,10 @@ use std::path::{Path, PathBuf};
 
 use walkdir::DirEntry;
 
-use crate::handlers::backup::name_convention::get_backup_file_path;
-use crate::handlers::file_operation::FileOperation;
-use crate::handlers::file_operation_context::FileOperationContext;
-use crate::handlers::file_utils::get_relative_file_name;
+use crate::handlers::operations::backup::name_convention::get_backup_file_path;
+use crate::handlers::utils::file_operation::FileOperation;
+use crate::handlers::utils::file_operation_context::FileOperationContext;
+use crate::handlers::utils::file_utils::get_relative_file_name;
 
 pub struct LinkFileOperation {}
 

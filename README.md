@@ -37,7 +37,8 @@ All logic is implemented in rust, it helps to prevent any issues with scripting 
 2. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
 3. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
-4. There is no idea to reimplement inside this tool some functionality of version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
+4. There is no goal to reimplement inside this tool some functionality of version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
+5. There is no goal to do anything with system files (under /etc/ for example) because it requires root access and the main intent is to support the simplest and the most typical case (and not deal with file permissions under the home directory).
 
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
@@ -46,5 +47,6 @@ Corresponding settings can be versioned in separate directories as you like and 
 4. [homesick](https://github.com/technicalpickles/homesick)
 5. [dotfiles.github](https://dotfiles.github.io/)
 6. [atlassian.dotfiles bare git repo](https://www.atlassian.com/git/tutorials/dotfiles) (nice, but it is hard to use dotfiles that are splitted into different repositories)
+7. [stow](https://www.gnu.org/software/stow/) (nice, but I found it too late and there is no backup functionality, and I wanted the simpler interface)
 
 Thanks to all of these projects for the idea!

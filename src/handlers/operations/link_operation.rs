@@ -55,9 +55,9 @@ impl FileOperation for LinkFileOperation {
 
         let backup_file_result = self.create_backup_file(&home_file_path, &repository_file_path)?;
 
-        // it is important to check whether this is
-        // a) regular file
-        // b) symlink exists (more over, it does not matter whether link is broken or not)
+        // The goal here is to check whether the file\symlink exists before we try to delete it.
+        // This is needed to distinguish the situation when it is impossible to delete the file
+        // from the situation that we are trying to delete the nonexistent file
         let metadata = std::fs::symlink_metadata(home_file_path);
         if metadata.is_ok() {
             std::fs::remove_file(home_file_path)

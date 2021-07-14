@@ -1,5 +1,6 @@
 use crate::cli_arguments::{BackupSubcommand};
 use crate::cli_arguments::Command::{Backup, Link, List, Unlink, Check};
+use std::process::exit;
 
 mod environment;
 mod cli_arguments;
@@ -11,7 +12,7 @@ fn main() {
     let cli_arguments = cli_arguments::arguments();
     let logger = log::create(cli_arguments.verbose());
 
-    match cli_arguments.command() {
+    let result = match cli_arguments.command() {
         Link(_) => handlers::link(&environment, &logger),
         Unlink(_) => handlers::unlink(&environment, &logger),
         List(_) => handlers::list(&environment, &logger),
@@ -24,5 +25,6 @@ fn main() {
             }
         }
         Check(_) => handlers::check(&environment, &logger),
-    }
+    };
+    exit(result.map_or(1, |_| 0));
 }

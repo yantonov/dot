@@ -62,9 +62,7 @@ impl FileOperation for LinkFileOperation {
                 .map_err(|e| e.to_string())?;
         }
         match symlink::symlink_file(repository_file_path, &home_file_path) {
-            Ok(_) => {
-                Ok(())
-            }
+            Ok(_) => Ok(()),
             Err(e) => {
                 match backup_file_result {
                     None => {}

@@ -19,13 +19,13 @@ impl FileOperation for LoggedOperation<'_, FileOperationContext> {
             self.logger.log(LogLevel::Error,
                             &format!("{} - {}",
                                      entry_path_str,
-                                     result.unwrap_err()))
+                                     result.as_ref().unwrap_err()))
         } else {
             self.logger.log(LogLevel::Info,
                             &format!("{}",
                                      entry_path_str))
         }
-        Ok(())
+        result
     }
 }
 

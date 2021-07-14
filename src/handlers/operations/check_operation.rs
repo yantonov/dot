@@ -20,12 +20,10 @@ impl FileOperation for CheckFileOperation {
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
         let repository_file_path = entry.path();
         let home_path = home_path(context, &entry)?;
-        println!("[{}] {}",
-                 match exists(&home_path, repository_file_path) {
-                     true => "OK",
-                     false => "FAIL"
-                 },
-                 repository_file_path.to_str().unwrap());
-        Ok(())
+        if exists(&home_path, repository_file_path) {
+            Ok(())
+        } else {
+            Err(format!("symlink does not exist"))
+        }
     }
 }

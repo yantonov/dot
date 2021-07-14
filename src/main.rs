@@ -1,5 +1,5 @@
 use crate::cli_arguments::{BackupSubcommand};
-use crate::cli_arguments::Command::{Backup, Link, List, Unlink};
+use crate::cli_arguments::Command::{Backup, Link, List, Unlink, Check};
 
 mod environment;
 mod cli_arguments;
@@ -23,5 +23,6 @@ fn main() {
                     handlers::remove_backup(&environment, &logger),
             }
         }
+        Check(_) => handlers::check(&environment, &logger),
     }
 }

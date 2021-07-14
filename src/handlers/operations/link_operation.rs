@@ -5,7 +5,7 @@ use walkdir::DirEntry;
 use crate::handlers::operations::backup::name_convention::get_backup_file_path;
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
-use crate::handlers::utils::file_utils::get_relative_file_name;
+use crate::handlers::utils::file_utils::{home_path};
 
 pub struct LinkFileOperation {}
 
@@ -45,9 +45,7 @@ impl FileOperation for LinkFileOperation {
     type Context = FileOperationContext;
 
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
-        let file_name = get_relative_file_name(&context.current_directory(), entry)?;
-
-        let home_file_pathbuf = Path::join(Path::new(&context.home()), file_name);
+        let home_file_pathbuf = home_path(context, &entry)?;
         let home_file_path = home_file_pathbuf.as_path();
         let repository_file_path = entry.path();
 

@@ -22,9 +22,10 @@ fn file_iteration_handler(environment: &Environment,
 }
 
 pub fn check(environment: &Environment,
-             _: &Logger) {
+             logger: &Logger) {
     file_iteration_handler(environment,
-                           &CheckFileOperation {})
+                           &LoggedOperation::wrap(logger,
+                                                  &CheckFileOperation {}))
 }
 
 pub fn link(environment: &Environment,
@@ -42,15 +43,17 @@ pub fn unlink(environment: &Environment,
 }
 
 pub fn list(environment: &Environment,
-            _: &Logger) {
+            logger: &Logger) {
     file_iteration_handler(environment,
-                           &ListFileOperation {})
+                           &LoggedOperation::wrap(logger,
+                                                  &ListFileOperation {}))
 }
 
 pub fn list_backup(environment: &Environment,
-                   _: &Logger) {
+                   logger: &Logger) {
     file_iteration_handler(environment,
-                           &ListBackupOperation {})
+                           &LoggedOperation::wrap(logger,
+                                                  &ListBackupOperation {}))
 }
 
 pub fn remove_backup(environment: &Environment,

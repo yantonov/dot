@@ -19,6 +19,8 @@ pub enum Command {
     List(List),
     #[clap(about = "backup commands", display_order = 3)]
     Backup(Backup),
+    #[clap(about = "check that all links exists", display_order = 4)]
+    Check(Check)
 }
 
 #[derive(Clap)]
@@ -56,6 +58,8 @@ pub struct ListBackup {}
 #[derive(Clap)]
 pub struct RemoveBackup {}
 
+#[derive(Clap)]
+pub struct Check {}
 
 pub struct Arguments {
     args: Opts

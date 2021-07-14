@@ -9,6 +9,7 @@ use crate::environment::Environment;
 use crate::log::Logger;
 use crate::handlers::utils::file_operation::{iterate_files, FileOperation};
 use crate::handlers::utils::file_operation_context::FileOperationContext;
+use crate::handlers::operations::check_operation::CheckFileOperation;
 
 mod operations;
 mod utils;
@@ -18,6 +19,13 @@ fn file_iteration_handler(environment: &Environment,
     iterate_files(environment.current_dir(),
                   &FileOperationContext::create(environment),
                   operation)
+}
+
+pub fn check(environment: &Environment,
+             logger: &Logger) {
+    file_iteration_handler(environment,
+                           &LoggedOperation::wrap(logger,
+                                                  &CheckFileOperation {}))
 }
 
 pub fn link(environment: &Environment,

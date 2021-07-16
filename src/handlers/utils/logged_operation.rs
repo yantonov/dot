@@ -15,7 +15,7 @@ impl FileOperation for LoggedOperation<'_, FileOperationContext> {
 
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
         let result = self.operation.call(context, &entry);
-        let entry_path_str = to_result(entry.path().to_str(), "cannot convert path to str")?;
+        let entry_path_str = to_result(entry.path().to_str(), "cannot get file name")?;
         if result.is_err() {
             self.logger.log(LogLevel::Error,
                             &format!("{} - {}",

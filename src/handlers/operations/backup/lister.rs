@@ -11,7 +11,7 @@ pub fn list_backup_files(context: &FileOperationContext,
     let home_file_path = home_file_pathbuf.as_path();
     let file_directory = to_result(home_file_path.parent(), "cannot get parent directory")?;
 
-    let file_name = to_result(entry.file_name().to_str(), "cannot get filename")?;
+    let file_name = to_result(entry.file_name().to_str(), "cannot get file name")?;
     let backup_checker = is_backup_file(&file_name);
 
     Ok(

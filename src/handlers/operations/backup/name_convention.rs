@@ -17,7 +17,7 @@ fn get_timestamp_string() -> String {
 
 pub fn get_backup_file_path(home_file_path: &Path) -> Result<PathBuf, String> {
     let path_str: String = vec![
-        to_result(home_file_path.to_str(), "cannot get filename")?,
+        to_result(home_file_path.to_str(), "cannot get file name")?,
         ".bak.",
         &get_timestamp_string()
     ]

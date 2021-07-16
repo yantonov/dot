@@ -7,7 +7,7 @@ use crate::util::to_result;
 fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, String> {
     let stripped = entry.path().strip_prefix(&root)
         .map_err(|_| "cannot strip prefix")?;
-    to_result(stripped.to_str(), "cannot extract file name for file")
+    to_result(stripped.to_str(), "cannot get file name")
         .map(|x| x.to_string())
 }
 

@@ -12,7 +12,9 @@ impl FileOperation for ListBackupOperation {
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
         let files = list_backup_files(context, entry)?;
         for entry in files {
-            println!("{}", entry.path().to_str().unwrap());
+            if let Some(filename) = entry.path().to_str() {
+                println!("{}", filename);
+            }
         }
         Ok(())
     }

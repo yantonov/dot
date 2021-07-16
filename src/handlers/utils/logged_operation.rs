@@ -3,6 +3,7 @@ use walkdir::DirEntry;
 use crate::log::{Logger, LogLevel};
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
+use crate::util::to_result;
 
 pub struct LoggedOperation<'a, TContext> {
     logger: &'a Logger,
@@ -14,7 +15,7 @@ impl FileOperation for LoggedOperation<'_, FileOperationContext> {
 
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
         let result = self.operation.call(context, &entry);
-        let entry_path_str = entry.path().to_str().unwrap();
+        let entry_path_str = to_result(entry.path().to_str(), "cannot convert path to str")?;
         if result.is_err() {
             self.logger.log(LogLevel::Error,
                             &format!("{} - {}",

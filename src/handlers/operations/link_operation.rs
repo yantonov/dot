@@ -6,6 +6,7 @@ use crate::handlers::operations::backup::name_convention::get_backup_file_path;
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
 use crate::handlers::utils::file_utils::{home_path};
+use crate::util::to_result;
 
 pub struct LinkFileOperation {}
 
@@ -21,7 +22,7 @@ impl LinkFileOperation {
             return Ok(None);
         }
 
-        let backup_file_path = get_backup_file_path(home_file_path);
+        let backup_file_path = get_backup_file_path(home_file_path)?;
         let backup_file_path_result = backup_file_path.clone();
 
         std::fs::copy(home_file_path, backup_file_path)
@@ -31,8 +32,9 @@ impl LinkFileOperation {
 
     fn create_parent_directory(&self,
                                home_file_path: &Path) -> Result<(), String> {
-        let home_file_path_parent_dir = home_file_path.parent()
-            .unwrap();
+        let home_file_path_parent_dir = to_result(
+            home_file_path.parent(),
+            "cannot get parent directory")?;
         if !home_file_path_parent_dir.exists() {
             std::fs::create_dir_all(home_file_path_parent_dir)
                 .map_err(|e| e.to_string())?;

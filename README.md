@@ -3,20 +3,20 @@
 ###  Dot
 
 #### Idea
-Put configuration files (dot files) into version control system.  
+Put configuration files (dot files) into the version control system.  
 To use saved files just create symbolic links to them.  
-This tool provides you all required automation by the single command.  
+This tool provides you with all the required automation by a single command.  
 
 #### Mechanics
-Dot tool iterates over the current directory including subdirectories and creates symbolic links from ${HOME} to all files inside the current directory.  
+Dot tool iterates over the current directory (including subdirectories) and creates symbolic links from ${HOME} to all files inside the current directory.  
 Backup files will be generated before the creation of symbolic links.  
 No specific layout (directory structure) or additional configuration files are required, just run the program inside the directory which contains your dot files.  
 
 #### Installation
-1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) into PATH
+1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) into the PATH
 2. Use it from any directory (from your git repository or any other folder)
 
-### Windows specifics
+#### Windows specifics
 You must have additional privileges to create symbolic links.
 You can set permissions here:
 ```
@@ -25,7 +25,7 @@ Configuration \ Windows Settings \ Security Settings \ Local Policies \ User Rig
 By default Administrator can create symbolic links.
 Make sure you run Git bash | Power shell | Cmd as administrator.
 
-#### Examples
+##### Examples
 1. [some bash files](https://github.com/yantonov/sh)  
 Run the dot tool inside the mac/dotfiles directory.
 2. [nested directory example](https://github.com/yantonov/dotlein)  
@@ -37,7 +37,7 @@ All logic is implemented in rust, it helps to prevent any issues with scripting 
 2. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
 3. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
-4. There is no goal to reimplement inside this tool some functionality of version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
+4. There is no goal to reimplement inside this tool some functionality of the version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
 5. There is no goal to do anything with system files (under /etc/ for example) because it requires root access and the main intent is to support the simplest and the most typical case (and not deal with file permissions under the home directory).
 
 ##### Inspired by:

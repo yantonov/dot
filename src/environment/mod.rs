@@ -16,9 +16,9 @@ impl Environment {
     }
 }
 
-struct SystemEnvironment {}
+struct DefaultEnvironment {}
 
-impl SystemEnvironment {
+impl DefaultEnvironment {
     fn source_directory(&self) -> Result<PathBuf, String> {
         env::current_dir()
             .map_err(|_| "cannot get current directory".to_string())
@@ -31,10 +31,13 @@ impl SystemEnvironment {
     }
 }
 
-pub fn system_environment() -> Environment {
-    let sys_env = SystemEnvironment {};
-    return Environment {
-        source_directory: sys_env.source_directory().unwrap(),
-        target_directory: sys_env.target_directory().unwrap(),
-    };
+pub fn system_environment(source: &Option<PathBuf>,
+                          target: &Option<PathBuf>) -> Result<Environment, String> {
+    let default_env = DefaultEnvironment {};
+    return Ok(Environment {
+        source_directory: source.clone()
+            .unwrap_or(default_env.source_directory()?),
+        target_directory: target.clone()
+            .unwrap_or(default_env.target_directory()?),
+    });
 }

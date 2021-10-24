@@ -38,7 +38,8 @@ All logic is implemented in rust, it helps to prevent any issues with scripting 
 3. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
 4. There is no goal to reimplement inside this tool some functionality of the version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
-5. There is no goal to do anything with system files (under /etc/ for example) because it requires root access and the main intent is to support the simplest and the most typical case (and not deal with file permissions under the home directory).
+5. There is no goal to do anything with system files (under /etc/ for example) because it requires root access and the main intent is to support the simplest and the most typical case (and not deal with file permissions under the home directory).  
+Update: you can try to use this tool for system files using --target parameter if you have corresponding permissions to write to the target directory.
 
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)

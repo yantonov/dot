@@ -16,7 +16,7 @@ mod utils;
 
 fn file_iteration_handler(environment: &Environment,
                           operation: &dyn FileOperation<Context=FileOperationContext>) -> Result<(), String> {
-    iterate_files(environment.current_dir(),
+    iterate_files(environment.source_directory(),
                   &FileOperationContext::create(environment),
                   operation)
 }

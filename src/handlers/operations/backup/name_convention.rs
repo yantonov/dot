@@ -15,11 +15,11 @@ fn get_timestamp_string() -> String {
     Local::now().format("%Y-%m-%d_%H-%M-%S").to_string()
 }
 
-pub fn get_backup_file_path(home_file_path: &Path) -> Result<PathBuf, String> {
+pub fn get_backup_file_path(file_path: &Path) -> Result<PathBuf, String> {
     let path_str: String = vec![
-        to_result(home_file_path.to_str(), "cannot get file name")?,
+        to_result(file_path.to_str(), "cannot get file name")?,
         ".bak.",
-        &get_timestamp_string()
+        &get_timestamp_string(),
     ]
         .join("");
     Ok(Path::new(&path_str).to_path_buf())

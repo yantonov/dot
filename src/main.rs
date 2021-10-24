@@ -1,6 +1,8 @@
-use crate::cli_arguments::{BackupSubcommand};
+use crate::cli_arguments::{Arguments, BackupSubcommand};
 use crate::cli_arguments::Command::{Backup, Link, List, Unlink, Check};
 use std::process::exit;
+use crate::environment::Environment;
+use crate::log::{LogLevel};
 
 mod environment;
 mod cli_arguments;
@@ -8,24 +10,39 @@ mod handlers;
 mod log;
 mod util;
 
-fn main() {
-    let environment = environment::system_environment();
-    let cli_arguments = cli_arguments::arguments();
-    let logger = log::create(cli_arguments.verbose());
+fn environment(args: &Arguments) -> Result<Environment, String> {
+    let source_directory = args.source_directory()?;
+    let target_directory = args.target_directory()?;
+    Ok(environment::system_environment(
+        &source_directory,
+        &target_directory,
+    )?)
+}
 
-    let result = match cli_arguments.command() {
-        Link(_) => handlers::link(&environment, &logger),
-        Unlink(_) => handlers::unlink(&environment, &logger),
-        List(_) => handlers::list(&environment, &logger),
-        Backup(subcommand) => {
-            match subcommand.backup_subcommand() {
-                BackupSubcommand::List(_) =>
-                    handlers::list_backup(&environment, &logger),
-                BackupSubcommand::Remove(_) =>
-                    handlers::remove_backup(&environment, &logger),
-            }
+fn main() {
+    let args = cli_arguments::arguments();
+    let logger = log::create(args.verbose());
+    match environment(&args) {
+        Ok(env) => {
+            let result = match args.command() {
+                Link(_) => handlers::link(&env, &logger),
+                Unlink(_) => handlers::unlink(&env, &logger),
+                List(_) => handlers::list(&env, &logger),
+                Backup(subcommand) => {
+                    match subcommand.backup_subcommand() {
+                        BackupSubcommand::List(_) =>
+                            handlers::list_backup(&env, &logger),
+                        BackupSubcommand::Remove(_) =>
+                            handlers::remove_backup(&env, &logger),
+                    }
+                }
+                Check(_) => handlers::check(&env, &logger),
+            };
+            exit(result.map_or(1, |_| 0));
         }
-        Check(_) => handlers::check(&environment, &logger),
-    };
-    exit(result.map_or(1, |_| 0));
+        Err(message) => {
+            logger.log(LogLevel::Error, &message);
+            exit(1)
+        }
+    }
 }

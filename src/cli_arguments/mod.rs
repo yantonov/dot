@@ -1,3 +1,5 @@
+use std::fs;
+use std::path::{PathBuf};
 use clap::{Clap, crate_version};
 
 #[derive(Clap)]
@@ -7,6 +9,10 @@ struct Opts {
     verbose: i32,
     #[clap(subcommand)]
     command: Command,
+    #[clap(short, long, about = "repository/source path")]
+    source: Option<String>,
+    #[clap(short, long, about = "target path")]
+    target: Option<String>,
 }
 
 #[derive(Clap)]
@@ -20,7 +26,7 @@ pub enum Command {
     #[clap(about = "backup commands", display_order = 3)]
     Backup(Backup),
     #[clap(about = "check that all links exists", display_order = 4)]
-    Check(Check)
+    Check(Check),
 }
 
 #[derive(Clap)]
@@ -35,7 +41,7 @@ pub struct List {}
 #[derive(Clap)]
 pub struct Backup {
     #[clap(subcommand)]
-    subcommand: BackupSubcommand
+    subcommand: BackupSubcommand,
 }
 
 impl Backup {
@@ -62,7 +68,23 @@ pub struct RemoveBackup {}
 pub struct Check {}
 
 pub struct Arguments {
-    args: Opts
+    args: Opts,
+}
+
+fn validate_dir(path: &Option<String>, title: &str) -> Result<Option<PathBuf>, String> {
+    match path {
+        None => Ok(None),
+        Some(p) => {
+            let path_buf = PathBuf::from(p.clone());
+            let canonical_path_buf = fs::canonicalize(&path_buf)
+                .map_err(|_| format!("cannot canonicalize {}", title))?;
+            if !canonical_path_buf.exists() {
+                Err(format!("{} '{}' does not exists", title, p))
+            } else {
+                Ok(Some(canonical_path_buf))
+            }
+        }
+    }
 }
 
 impl Arguments {
@@ -71,6 +93,14 @@ impl Arguments {
     }
 
     pub fn verbose(&self) -> i32 { self.args.verbose }
+
+    pub fn target_directory(&self) -> Result<Option<PathBuf>, String> {
+        validate_dir(&self.args.target, "target directory")
+    }
+
+    pub fn source_directory(&self) -> Result<Option<PathBuf>, String> {
+        validate_dir(&self.args.source, "source directory")
+    }
 }
 
 pub fn arguments() -> Arguments {

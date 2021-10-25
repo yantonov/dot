@@ -76,12 +76,17 @@ fn validate_dir(path: &Option<String>, title: &str) -> Result<Option<PathBuf>, S
         None => Ok(None),
         Some(p) => {
             let path_buf = PathBuf::from(p.clone());
-            let canonical_path_buf = fs::canonicalize(&path_buf)
-                .map_err(|_| format!("cannot canonicalize {}", title))?;
-            if !canonical_path_buf.exists() {
-                Err(format!("{} '{}' does not exists", title, p))
-            } else {
-                Ok(Some(canonical_path_buf))
+            if !path_buf.exists() {
+                Err(format!("Path '{}' '{}' does not exists", title, p))
+            }
+            else {
+                let canonical_path_buf = fs::canonicalize(&path_buf)
+                    .map_err(|_| format!("cannot canonicalize '{}', '{}'", title, p))?;
+                if !canonical_path_buf.exists() {
+                    Err(format!("'{}' '{}' does not exists", title, p))
+                } else {
+                    Ok(Some(canonical_path_buf))
+                }
             }
         }
     }

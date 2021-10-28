@@ -19,9 +19,9 @@ impl FileOperation for CheckFileOperation {
     type Context = FileOperationContext;
 
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
-        match exists(&target_path(context, &entry)?, entry.path()) {
+        match exists(&target_path(context, entry)?, entry.path()) {
             true => Ok(()),
-            false => Err(format!("symlink does not exist"))
+            false => Err("symlink does not exist".to_string())
         }
     }
 }

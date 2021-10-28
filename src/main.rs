@@ -13,10 +13,9 @@ mod util;
 fn environment(args: &Arguments) -> Result<Environment, String> {
     let source_directory = args.source_directory()?;
     let target_directory = args.target_directory()?;
-    Ok(environment::system_environment(
+    environment::system_environment(
         &source_directory,
-        &target_directory,
-    )?)
+        &target_directory)
 }
 
 fn main() {

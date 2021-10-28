@@ -34,10 +34,10 @@ impl DefaultEnvironment {
 pub fn system_environment(source: &Option<PathBuf>,
                           target: &Option<PathBuf>) -> Result<Environment, String> {
     let default_env = DefaultEnvironment {};
-    return Ok(Environment {
+    Ok(Environment {
         source_directory: source.clone()
             .unwrap_or(default_env.source_directory()?),
         target_directory: target.clone()
             .unwrap_or(default_env.target_directory()?),
-    });
+    })
 }

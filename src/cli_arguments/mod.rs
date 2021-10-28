@@ -46,7 +46,7 @@ pub struct Backup {
 
 impl Backup {
     pub fn backup_subcommand(&self) -> &BackupSubcommand {
-        return &self.subcommand;
+        &self.subcommand
     }
 }
 
@@ -109,5 +109,5 @@ impl Arguments {
 }
 
 pub fn arguments() -> Arguments {
-    return Arguments { args: Opts::parse() };
+    Arguments { args: Opts::parse() }
 }

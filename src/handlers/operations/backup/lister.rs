@@ -7,12 +7,12 @@ use crate::util::to_result;
 
 pub fn list_backup_files(context: &FileOperationContext,
                          entry: &DirEntry) -> Result<Vec<DirEntry>, String> {
-    let target_file_pathbuf = target_path(context, &entry)?;
+    let target_file_pathbuf = target_path(context, entry)?;
     let target_file_path = target_file_pathbuf.as_path();
     let target_file_directory = to_result(target_file_path.parent(), "cannot get parent directory")?;
 
     let file_name = to_result(entry.file_name().to_str(), "cannot get file name")?;
-    let backup_checker = is_backup_file(&file_name);
+    let backup_checker = is_backup_file(file_name);
 
     Ok(
         WalkDir::new(target_file_directory)

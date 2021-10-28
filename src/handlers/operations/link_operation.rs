@@ -47,13 +47,13 @@ impl FileOperation for LinkFileOperation {
     type Context = FileOperationContext;
 
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
-        let target_file_pathbuf = target_path(context, &entry)?;
+        let target_file_pathbuf = target_path(context, entry)?;
         let target_file_path = target_file_pathbuf.as_path();
         let source_file_path = entry.path();
 
-        self.create_parent_directory(&target_file_path)?;
+        self.create_parent_directory(target_file_path)?;
 
-        let backup_file_result = self.create_backup_file(&target_file_path, &source_file_path)?;
+        let backup_file_result = self.create_backup_file(target_file_path, source_file_path)?;
 
         // The goal here is to check whether the file\symlink exists before we try to delete it.
         // This is needed to distinguish the situation when it is impossible to delete the file

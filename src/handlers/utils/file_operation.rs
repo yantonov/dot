@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::Path;
 
 use walkdir::{DirEntry, WalkDir};
 
@@ -8,7 +8,7 @@ pub trait FileOperation {
     fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String>;
 }
 
-pub fn iterate_files<TContext>(root: &PathBuf,
+pub fn iterate_files<TContext>(root: &Path,
                                context: &TContext,
                                file_operation: &dyn FileOperation<Context=TContext>,
 ) -> Result<(), String> {

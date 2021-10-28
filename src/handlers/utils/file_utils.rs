@@ -12,6 +12,6 @@ fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, Strin
 }
 
 pub fn target_path(context: &FileOperationContext, entry: &DirEntry) -> Result<PathBuf, String> {
-    let file_name = get_relative_file_name(&context.source_directory(), entry)?;
+    let file_name = get_relative_file_name(context.source_directory(), entry)?;
     Ok(Path::join(Path::new(&context.target_directory()), file_name))
 }

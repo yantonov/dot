@@ -52,6 +52,10 @@ Update: you can try to use this tool for system files using --target parameter i
 4. [homesick](https://github.com/technicalpickles/homesick)
 5. [dotfiles.github](https://dotfiles.github.io/)
 6. [atlassian.dotfiles bare git repo](https://www.atlassian.com/git/tutorials/dotfiles) (nice, but it is hard to use dotfiles that are splitted into different repositories)
-7. [stow](https://www.gnu.org/software/stow/) (nice, but I found it too late and there is no backup functionality, and I wanted the simpler interface)
+7. [stow](https://www.gnu.org/software/stow/) (nice, but  
+a) I found it too late; 
+b) there is no backup functionality;  
+c) I wanted an interface that as simple as possible to cover the default case
+d) stow has a little bit different ideology, for example about [tree-folding](https://www.gnu.org/software/stow/manual/stow.html#Tree-folding). 
 
 Thanks to all of these projects for the idea!

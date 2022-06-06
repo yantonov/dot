@@ -1,21 +1,21 @@
 use std::fs;
 use std::path::{PathBuf};
-use clap::{Clap, crate_version};
+use clap::Parser;
 
-#[derive(Clap)]
-#[clap(version = crate_version ! ())]
+#[derive(Parser)]
+#[clap(version)]
 struct Opts {
-    #[clap(short, long, parse(from_occurrences))]
+    #[clap(short, long, parse(from_occurrences), help="Verbose output")]
     verbose: i32,
     #[clap(subcommand)]
     command: Command,
-    #[clap(short, long, about = "repository/source path")]
+    #[clap(short, long, help="Repository/source path")]
     source: Option<String>,
-    #[clap(short, long, about = "target path")]
+    #[clap(short, long, help="Target path")]
     target: Option<String>,
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub enum Command {
     #[clap(about = "create symbolic links, backup files will be generated", display_order = 0)]
     Link(Link),
@@ -29,16 +29,16 @@ pub enum Command {
     Check(Check),
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct Link {}
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct Unlink {}
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct List {}
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct Backup {
     #[clap(subcommand)]
     subcommand: BackupSubcommand,
@@ -50,7 +50,7 @@ impl Backup {
     }
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub enum BackupSubcommand {
     #[clap(about = "list backup files", display_order = 0)]
     List(ListBackup),
@@ -58,13 +58,13 @@ pub enum BackupSubcommand {
     Remove(RemoveBackup),
 }
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct ListBackup {}
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct RemoveBackup {}
 
-#[derive(Clap)]
+#[derive(Parser)]
 pub struct Check {}
 
 pub struct Arguments {

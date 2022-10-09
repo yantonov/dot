@@ -37,7 +37,7 @@ Run the dot tool inside the config directory.
 
 ##### Some tecnhical notes: 
 1. The app is distributed as a single binary to simplify the installation process.  
-All logic is implemented in rust, it helps to prevent any issues with scripting languages and setting environment (bash was not considered because long bash scripts are hard to maintain).
+All logic is implemented in rust (only to provide a single binary), it helps to prevent any issues with scripting languages and setting environment (bash was not considered because long bash scripts are hard to maintain).
 2. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
 3. The composition of settings for different operation systems/platforms/devices can be done manually.
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.

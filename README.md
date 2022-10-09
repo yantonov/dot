@@ -9,7 +9,10 @@ This tool provides you with all the required automation by a single command.
 
 #### Mechanics
 Dot tool iterates over the current directory (including subdirectories) and creates symbolic links from ${HOME} to all files inside the current directory (source, target directories can be paramerized, HOME is the reasonable default).  
+
 Backup files will be generated before the creation of symbolic links (to preserve the existing content of the files that may be different than those you want to link).  
+Why you need backup: by default, on the fresh system, for example, it's possible that you already have some config files, the idea is to prevent missing any existing information.
+
 No specific layout (directory structure) or additional configuration files are required, just run the program inside the directory which contains your dot files.  
 
 ```

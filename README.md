@@ -57,5 +57,6 @@ a) I found it too late;
 b) there is no backup functionality;  
 c) I wanted an interface that as simple as possible to cover the default case;  
 d) stow has a little bit different ideology, for example about [tree-folding](https://www.gnu.org/software/stow/manual/stow.html#Tree-folding). 
+8. [lndir](https://linux.die.net/man/1/lndir) cannot handle relative directories, user experience is not so nice (not informative errors)
 
 Thanks to all of these projects for the idea!

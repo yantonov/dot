@@ -8,7 +8,7 @@ To use saved files just create symbolic links to them.
 This tool provides you with all the required automation by a single command.  
 
 #### Mechanics
-Dot tool iterates over the current directory (including subdirectories) and creates symbolic links from ${HOME} to all files inside the current directory.  
+Dot tool iterates over the current directory (including subdirectories) and creates symbolic links from ${HOME} to all files inside the current directory (source, target directories can be paramerized, HOME is the reasonable default).  
 Backup files will be generated before the creation of symbolic links (to preserve the existing content of the files that may be different than those you want to link).  
 No specific layout (directory structure) or additional configuration files are required, just run the program inside the directory which contains your dot files.  
 

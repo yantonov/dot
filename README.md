@@ -33,8 +33,11 @@ By default Administrator can create symbolic links.
 Make sure you run Git bash | Power shell | Cmd as administrator.
 
 ##### Examples
-1. [some bash files](https://github.com/yantonov/sh)  
-Run the dot tool inside the mac/dotfiles directory.
+1. Bash files:  
+[common unix settings](https://github.com/yantonov/sh/tree/master/nix/dotfiles)  
+[ubuntu settings](https://github.com/yantonov/sh/tree/master/ubuntu/dotfiles)  
+[mac settings](https://github.com/yantonov/sh/tree/master/mac/dotfiles)  
+Common files are located in a separate directory. Platform specifics - inside the corresponding folder.
 2. [nested directory example](https://github.com/yantonov/dotlein)  
 Run the dot tool inside the config directory.
 

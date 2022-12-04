@@ -38,8 +38,8 @@ Make sure you run Git bash | Power shell | Cmd as administrator.
 [ubuntu settings](https://github.com/yantonov/sh/tree/master/ubuntu/dotfiles)  
 [mac settings](https://github.com/yantonov/sh/tree/master/mac/dotfiles)  
 Common files are located in a separate directory. Platform specifics - inside the corresponding folder.
-2. [nested directory example](https://github.com/yantonov/dotlein)  
-Run the dot tool inside the config directory.
+2. [nested directory example](https://github.com/yantonov/lein-conf/tree/master/dotfiles)  
+Run the dot tool inside the dotfiles directory.
 
 ##### Some tecnhical notes: 
 1. The app is distributed as a single binary to simplify the installation process.  

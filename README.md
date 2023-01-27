@@ -66,5 +66,6 @@ d) stow has a little bit different ideology, for example about [tree-folding](ht
 Why tree-folding (symlinks for the directory) is not implemented within this tool: the common and specific settings like overrides can be stored in different directories\repositories while they are using the same directory structure, that's why it's not possible what target directory should be used for the symbolic link.
 8. [lndir](https://linux.die.net/man/1/lndir) cannot handle relative directories, user experience is not so nice (not informative errors)  
 9. [chezmoi](https://github.com/twpayne/chezmoi) too complicated for such trivial task, for multiple machines it's easier to have different folders (extract different parts and link it separately), than to have templates and code inside it (because it's hard to support files with multiple conditional statements inside it for different platforms).  
+10. [dotbot](https://github.com/anishathalye/dotbot) too complicated + config is required  
 
 Thanks to all of these projects for the idea!

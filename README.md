@@ -45,11 +45,13 @@ Run the dot tool inside the dotfiles directory.
 1. The app is distributed as a single binary to simplify the installation process.  
 All logic is implemented in rust (only to provide a single binary), it helps to prevent any issues with scripting languages and setting environment (bash was not considered because long bash scripts are hard to maintain).
 2. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
-3. The composition of settings for different operation systems/platforms/devices can be done manually.
+3. The composition of settings for different operation systems/platforms/devices can be done manually.  
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
 4. There is no goal to reimplement inside this tool some functionality of the version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
-5. There is no goal to do anything with system files (under /etc/ for example) because it requires root access and the main intent is to support the simplest and the most typical case (and not deal with file permissions under the home directory).  
-Update: you can try to use this tool for system files using --target parameter if you have corresponding permissions to write to the target directory.
+5. You can try to use this tool for system files (/etc/something) using --target parameter if you have corresponding permissions to write to the target directory.
+6. There is no intent to introduce extensive configuration settings,  
+because in that case, it's easier to use a generic programming language and implement all required functionality using it.  
+There is no profit to have just another indirection level for coping files, creating symbolic links, etc.
 
 ##### Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
@@ -63,7 +65,9 @@ a) I found it too late;
 b) there is no backup functionality;  
 c) I wanted an interface that as simple as possible to cover the default case;  
 d) stow has a little bit different ideology, for example about [tree-folding](https://www.gnu.org/software/stow/manual/stow.html#Tree-folding).  
-Why tree-folding (symlinks for the directory) is not implemented within this tool: the common and specific settings like overrides can be stored in different directories\repositories while they are using the same directory structure, that's why it's not possible what target directory should be used for the symbolic link.
+Why tree-folding (symlinks for the directory) is not implemented within this tool:  
+the common and specific settings like overrides\extensions\customizations can be stored in different directories\repositories while they are using the same directory structure.  
+In that case it's we have more than one target directory (with the base settings, with overrides\extensions) and that's why it's not possible to figure out what target directory should be used for the symbolic link.
 8. [lndir](https://linux.die.net/man/1/lndir) cannot handle relative directories, user experience is not so nice (not informative errors)  
 9. [chezmoi](https://github.com/twpayne/chezmoi) too complicated for such trivial task, for multiple machines it's easier to have different folders (extract different parts and link it separately), than to have templates and code inside it (because it's hard to support files with multiple conditional statements inside it for different platforms).  
 10. [dotbot](https://github.com/anishathalye/dotbot) too complicated + config is required  

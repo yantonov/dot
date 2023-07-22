@@ -42,14 +42,12 @@ Common files are located in a separate directory. Platform specifics - inside th
 Run the dot tool inside the dotfiles directory.
 
 ##### Some tecnhical notes: 
-1. The app is distributed as a single binary to simplify the installation process.  
-All logic is implemented in rust (only to provide a single binary), it helps to prevent any issues with scripting languages and setting environment (bash was not considered because long bash scripts are hard to maintain).
-2. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
-3. The composition of settings for different operation systems/platforms/devices can be done manually.  
+1. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
+2. The composition of settings for different operation systems/platforms/devices can be done manually.  
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
-4. There is no goal to reimplement inside this tool some functionality of the version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
-5. You can try to use this tool for system files (/etc/something) using --target parameter if you have corresponding permissions to write to the target directory.
-6. There is no intent to introduce extensive configuration settings,  
+3. There is no goal to reimplement inside this tool some functionality of the version control system (to add/remove tracked files, checking changes, etc), or ansible (to distribute files across multiple devices/instances).
+4. You can try to use this tool for system files (/etc/something) using --target parameter if you have corresponding permissions to write to the target directory.
+5. There is no intent to introduce extensive configuration settings,  
 because in that case, it's easier to use a generic programming language and implement all required functionality using it.  
 There is no profit to have just another indirection level for coping files, creating symbolic links, etc.
 

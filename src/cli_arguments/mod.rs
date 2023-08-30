@@ -5,8 +5,8 @@ use clap::Parser;
 #[derive(Parser)]
 #[clap(version)]
 struct Opts {
-    #[clap(short, long, parse(from_occurrences), help="Verbose output")]
-    verbose: i32,
+    #[clap(short, long, help="Verbose output")]
+    verbose: bool,
     #[clap(subcommand)]
     command: Command,
     #[clap(short, long, help="Repository/source path")]
@@ -97,7 +97,7 @@ impl Arguments {
         &self.args.command
     }
 
-    pub fn verbose(&self) -> i32 { self.args.verbose }
+    pub fn verbose(&self) -> bool { self.args.verbose }
 
     pub fn target_directory(&self) -> Result<Option<PathBuf>, String> {
         validate_dir(&self.args.target, "target directory")

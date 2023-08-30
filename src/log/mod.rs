@@ -1,7 +1,7 @@
 use colored::{ColoredString, Colorize};
 
 pub struct Logger {
-    verbose: i32
+    verbose: bool,
 }
 
 pub enum LogLevel {
@@ -13,7 +13,7 @@ impl Logger {
     pub fn log(&self, level: LogLevel, message: &str) {
         match level {
             LogLevel::Info => {
-                if self.verbose > 0 {
+                if self.verbose {
                     self.log_internal(level, message);
                 }
             }
@@ -35,6 +35,6 @@ impl Logger {
     }
 }
 
-pub fn create(verbose: i32) -> Logger {
+pub fn create(verbose: bool) -> Logger {
     Logger { verbose }
 }

@@ -1,13 +1,19 @@
 [![Build Actions Status](https://github.com/yantonov/dot/workflows/ci/badge.svg)](https://github.com/yantonov/dot/actions)
 
-###  Dot
-
-#### Idea
+# Intro
 Put configuration files (dot files) into the version control system.  
 To use saved files just create symbolic links to them.  
 This tool provides you with all the required automation by a single command.  
 
-#### Mechanics
+# Table of contents
+1. [Mechanics](#mechanics)
+2. [Installation](#installation)
+3. [Windows specifics](#windows-specifics)
+4. [Examples](#examples)
+5. [Technical notes](#technical-notes)
+6. [Inspired by](#inspired-by)
+
+## Mechanics
 Dot tool iterates over the current directory (including subdirectories) and creates symbolic links from ${HOME} to all files inside the current directory (source, target directories can be paramerized, HOME is the reasonable default).  
 
 Backup files will be generated before the creation of symbolic links (to preserve the existing content of the files that may be different than those you want to link).  
@@ -19,11 +25,11 @@ No specific layout (directory structure) or additional configuration files are r
 dot link
 ```
 
-#### Installation
+## Installation
 1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) into the PATH
 2. Use it from any directory (from your git repository or any other folder)
 
-#### Windows specifics
+## Windows specifics
 You must have additional privileges to create symbolic links.
 You can set permissions here:
 ```
@@ -32,7 +38,7 @@ Configuration \ Windows Settings \ Security Settings \ Local Policies \ User Rig
 By default Administrator can create symbolic links.
 Make sure you run Git bash | Power shell | Cmd as administrator.
 
-##### Examples
+## Examples
 1. Bash files:  
 [common unix settings](https://github.com/yantonov/sh/tree/master/nix/dotfiles)  
 [ubuntu settings](https://github.com/yantonov/sh/tree/master/ubuntu/dotfiles)  
@@ -41,7 +47,7 @@ Common files are located in a separate directory. Platform specifics - inside th
 2. [nested directory example](https://github.com/yantonov/lein-conf/tree/master/dotfiles)  
 Run the dot tool inside the dotfiles directory.
 
-##### Some tecnhical notes: 
+## Some tecnhical notes: 
 1. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.
 2. The composition of settings for different operation systems/platforms/devices can be done manually.  
 Corresponding settings can be versioned in separate directories as you like and after that, you can call this tool manually from the selected directories.
@@ -51,7 +57,7 @@ Corresponding settings can be versioned in separate directories as you like and 
 because in that case, it's easier to use a generic programming language and implement all required functionality using it.  
 There is no profit to have just another indirection level for coping files, creating symbolic links, etc.
 
-##### Inspired by:
+## Inspired by:
 1. [missing-semester-course](https://github.com/missing-semester/missing-semester/blob/master/_2019/dotfiles.md)
 2. [dotfiler](https://github.com/svetlyak40wt/dotfiler)
 3. [dotfiles](https://github.com/holman/dotfiles)

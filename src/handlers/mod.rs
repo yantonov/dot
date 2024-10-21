@@ -15,50 +15,51 @@ mod operations;
 mod utils;
 
 fn file_iteration_handler(environment: &Environment,
-                          operation: &dyn FileOperation<Context=FileOperationContext>) -> Result<(), String> {
+                          logger: &Logger,
+                          operation: &dyn FileOperation) -> Result<(), String> {
     iterate_files(environment.source_directory(),
-                  &FileOperationContext::create(environment),
+                  &FileOperationContext::create(environment, logger),
                   operation)
 }
 
 pub fn check(environment: &Environment,
              logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &CheckFileOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&CheckFileOperation {}))
 }
 
 pub fn link(environment: &Environment,
             logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &LinkFileOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&LinkFileOperation {}))
 }
 
 pub fn unlink(environment: &Environment,
               logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &UnlinkFileOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&UnlinkFileOperation {}))
 }
 
 pub fn list(environment: &Environment,
             logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &ListFileOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&ListFileOperation {}))
 }
 
 pub fn list_backup(environment: &Environment,
                    logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &ListBackupOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&ListBackupOperation {}))
 }
 
 pub fn remove_backup(environment: &Environment,
                      logger: &Logger) -> Result<(), String> {
     file_iteration_handler(environment,
-                           &LoggedOperation::wrap(logger,
-                                                  &RemoveBackupOperation {}))
+                           logger,
+                           &LoggedOperation::wrap(&RemoveBackupOperation {}))
 }

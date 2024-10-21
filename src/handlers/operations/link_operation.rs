@@ -44,9 +44,8 @@ impl LinkFileOperation {
 }
 
 impl FileOperation for LinkFileOperation {
-    type Context = FileOperationContext;
 
-    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+    fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String> {
         let target_file_pathbuf = target_path(context, entry)?;
         let target_file_path = target_file_pathbuf.as_path();
         let source_file_path = entry.path();

@@ -1,42 +1,37 @@
+use colored::Colorize;
 use walkdir::DirEntry;
 
-use crate::log::{Logger, LogLevel};
+use crate::log::{LogLevel};
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
 use crate::util::to_result;
 
-pub struct LoggedOperation<'a, TContext> {
-    logger: &'a Logger,
-    operation: &'a dyn FileOperation<Context=TContext>,
+pub struct LoggedOperation<'a> {
+    operation: &'a dyn FileOperation,
 }
 
-impl FileOperation for LoggedOperation<'_, FileOperationContext> {
-    type Context = FileOperationContext;
-
-    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String> {
+impl FileOperation for LoggedOperation<'_> {
+    fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String> {
         let result = self.operation.call(context, entry);
         let entry_path_str = to_result(entry.path().to_str(), "cannot get file name")?;
         if result.is_err() {
-            self.logger.log(LogLevel::Error,
-                            &format!("{} - {}",
-                                     entry_path_str,
-                                     result.as_ref().unwrap_err()))
+            context.logger().log(LogLevel::Error,
+                                 &format!("{} - {}",
+                                          entry_path_str,
+                                          result.as_ref().unwrap_err()))
         } else {
-            self.logger.log(
-                LogLevel::Info,
-                &entry_path_str.to_string())
+            context.logger().log(LogLevel::Info,
+                                 &format!("[{}] - {}", "Ok".green(), &entry_path_str.to_string()))
         }
         result
     }
 }
 
-impl LoggedOperation<'_, FileOperationContext> {
+impl LoggedOperation<'_> {
     pub fn wrap<'a>(
-        logger: &'a Logger,
-        operation: &'a dyn FileOperation<Context=FileOperationContext>,
-    ) -> LoggedOperation<'a, FileOperationContext> {
+        operation: &'a dyn FileOperation,
+    ) -> LoggedOperation<'a> {
         LoggedOperation {
-            logger,
             operation,
         }
     }

@@ -1,16 +1,15 @@
 use std::path::Path;
 
 use walkdir::{DirEntry, WalkDir};
+use crate::handlers::utils::file_operation_context::FileOperationContext;
 
 pub trait FileOperation {
-    type Context;
-
-    fn call(&self, context: &Self::Context, entry: &DirEntry) -> Result<(), String>;
+    fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String>;
 }
 
-pub fn iterate_files<TContext>(root: &Path,
-                               context: &TContext,
-                               file_operation: &dyn FileOperation<Context=TContext>,
+pub fn iterate_files(root: &Path,
+                     context: &FileOperationContext<'_>,
+                     file_operation: &dyn FileOperation,
 ) -> Result<(), String> {
     WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))

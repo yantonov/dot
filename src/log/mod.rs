@@ -24,13 +24,13 @@ impl Logger {
     }
 
     fn log_internal(&self, level: LogLevel, message: &str) {
-        println!("[{}] {}", self.level_token(level), message);
+        println!("{} {}", self.level_token(level), message);
     }
 
     fn level_token(&self, level: LogLevel) -> ColoredString {
         match level {
-            LogLevel::Info => "Ok".green(),
-            LogLevel::Error => "Error".red(),
+            LogLevel::Info => "".normal(),
+            LogLevel::Error => "[Error]".red(),
         }
     }
 }

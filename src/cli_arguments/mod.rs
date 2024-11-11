@@ -1,6 +1,7 @@
 use std::fs;
 use std::path::{PathBuf};
 use clap::Parser;
+use crate::environment::{system_environment, Environment};
 
 #[derive(Parser)]
 #[clap(version)]
@@ -110,4 +111,12 @@ impl Arguments {
 
 pub fn arguments() -> Arguments {
     Arguments { args: Opts::parse() }
+}
+
+pub fn environment(args: &Arguments) -> Result<Environment, String> {
+    let source_directory = args.source_directory()?;
+    let target_directory = args.target_directory()?;
+    system_environment(
+        &source_directory,
+        &target_directory)
 }

@@ -1,8 +1,7 @@
-use crate::cli_arguments::{Arguments, BackupSubcommand};
-use crate::cli_arguments::Command::{Backup, Link, List, Unlink, Check};
+use crate::cli_arguments::Command::{Backup, Check, Link, List, Unlink};
+use crate::cli_arguments::BackupSubcommand;
+use crate::log::LogLevel;
 use std::process::exit;
-use crate::environment::Environment;
-use crate::log::{LogLevel};
 
 mod environment;
 mod cli_arguments;
@@ -10,18 +9,10 @@ mod handlers;
 mod log;
 mod util;
 
-fn environment(args: &Arguments) -> Result<Environment, String> {
-    let source_directory = args.source_directory()?;
-    let target_directory = args.target_directory()?;
-    environment::system_environment(
-        &source_directory,
-        &target_directory)
-}
-
 fn main() {
     let args = cli_arguments::arguments();
     let logger = log::create(args.verbose());
-    match environment(&args) {
+    match cli_arguments::environment(&args) {
         Ok(env) => {
             let result = match args.command() {
                 Link(_) => handlers::link(&env, &logger),

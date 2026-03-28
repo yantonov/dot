@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use crate::environment::Environment;
 use crate::log::Logger;
@@ -13,8 +13,8 @@ pub struct FileOperationContext<'a> {
 
 impl<'a> FileOperationContext<'a> {
     pub fn create(env: &'a Environment, logger: &'a Logger) -> FileOperationContext<'a> {
-        let target_directory = env.target_directory().clone();
-        let source_directory = env.source_directory().clone();
+        let target_directory = env.target_directory().to_path_buf();
+        let source_directory = env.source_directory().to_path_buf();
 
         FileOperationContext {
             target_directory,
@@ -23,11 +23,11 @@ impl<'a> FileOperationContext<'a> {
         }
     }
 
-    pub fn target_directory(&self) -> &PathBuf {
+    pub fn target_directory(&self) -> &Path {
         &self.target_directory
     }
 
-    pub fn source_directory(&self) -> &PathBuf {
+    pub fn source_directory(&self) -> &Path {
         &self.source_directory
     }
 

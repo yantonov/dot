@@ -7,11 +7,11 @@ pub struct Environment {
 }
 
 impl Environment {
-    pub fn source_directory(&self) -> &PathBuf {
+    pub fn source_directory(&self) -> &Path {
         &self.source_directory
     }
 
-    pub fn target_directory(&self) -> &PathBuf {
+    pub fn target_directory(&self) -> &Path {
         &self.target_directory
     }
 }

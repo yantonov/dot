@@ -31,21 +31,15 @@ mod tests {
 
     #[test]
     fn backup_file_pattern_test() {
-        assert_eq!(true, is_backup_file("test")
-            ("test.bak.2020-01-01_12-01-01"));
-        assert_eq!(true, is_backup_file("test.bak")
-            ("test.bak.bak.2020-01-01_12-01-01"));
+        assert!(is_backup_file("test")("test.bak.2020-01-01_12-01-01"));
+        assert!(is_backup_file("test.bak")("test.bak.bak.2020-01-01_12-01-01"));
     }
 
     #[test]
     fn not_backup_file_pattern_test() {
-        assert_eq!(false, is_backup_file("test.txt")
-            ("test.txt"));
-        assert_eq!(false, is_backup_file("test.txt")
-            ("test.txt.bak"));
-        assert_eq!(false, is_backup_file("test.txt")
-            ("test.txt.bak.2020-01-01"));
-        assert_eq!(false, is_backup_file("prefix")
-            ("prefix_test.txt.bak.2020-01-01_12-01-01"));
+        assert!(!is_backup_file("test.txt")("test.txt"));
+        assert!(!is_backup_file("test.txt")("test.txt.bak"));
+        assert!(!is_backup_file("test.txt")("test.txt.bak.2020-01-01"));
+        assert!(!is_backup_file("prefix")("prefix_test.txt.bak.2020-01-01_12-01-01"));
     }
 }

@@ -20,7 +20,7 @@ impl FileOperation for LoggedOperation<'_> {
                                           result.as_ref().unwrap_err()))
         } else {
             context.logger().log(LogLevel::Info,
-                                 &format!("[{}] - {}", "Ok".green(), &entry_path_str.to_string()))
+                                 &format!("[{}] - {}", "Ok".green(), entry_path_str))
         }
         result
     }

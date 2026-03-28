@@ -76,7 +76,7 @@ fn validate_dir(path: &Option<String>, title: &str) -> Result<Option<PathBuf>, S
     match path {
         None => Ok(None),
         Some(p) => {
-            let path_buf = PathBuf::from(p.clone());
+            let path_buf = PathBuf::from(p);
             if !path_buf.exists() {
                 Err(format!("Path '{}' '{}' does not exists", title, p))
             }

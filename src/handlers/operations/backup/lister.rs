@@ -27,7 +27,6 @@ pub fn list_backup_files(context: &FileOperationContext,
                     false
                 }
             })
-            .into_iter()
             .collect()
     )
 }

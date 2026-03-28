@@ -2,6 +2,20 @@ use std::path::{Path, PathBuf};
 
 use chrono::Local;
 
+// Validates a timestamp string in the format: YYYY-MM-DD_HH-MM-SS
+// Example: 2024-03-28_14-30-45
+// Positions: 0123-56-89_12-45-78
+//   [0..3]  year  (digits)
+//   [4]     '-'
+//   [5..6]  month (digits)
+//   [7]     '-'
+//   [8..9]  day   (digits)
+//   [10]    '_'
+//   [11..12] hour (digits)
+//   [13]    '-'
+//   [14..15] minute (digits)
+//   [16]    '-'
+//   [17..18] second (digits)
 fn is_timestamp(s: &str) -> bool {
     s.len() == 19
         && s.chars().enumerate().all(|(i, c)| match i {
@@ -37,6 +51,35 @@ pub fn get_backup_file_path(file_path: &Path) -> Result<PathBuf, String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    // Timestamp format: YYYY-MM-DD_HH-MM-SS
+    #[test]
+    fn timestamp_valid() {
+        assert!(is_timestamp("2024-03-28_14-30-45"));
+        assert!(is_timestamp("2000-01-01_00-00-00")); // boundary: all zeros
+        assert!(is_timestamp("9999-12-31_23-59-59")); // boundary: all max digits
+    }
+
+    #[test]
+    fn timestamp_wrong_length() {
+        assert!(!is_timestamp(""));
+        assert!(!is_timestamp("2024-03-28_14-30-4"));  // one char short
+        assert!(!is_timestamp("2024-03-28_14-30-450")); // one char long
+    }
+
+    #[test]
+    fn timestamp_wrong_separators() {
+        assert!(!is_timestamp("2024_03-28_14-30-45")); // '_' instead of '-' at position 4
+        assert!(!is_timestamp("2024-03-28-14-30-45")); // '-' instead of '_' at position 10
+        assert!(!is_timestamp("2024-03-28_14:30:45")); // ':' instead of '-' at positions 13, 16
+    }
+
+    #[test]
+    fn timestamp_non_digit_where_digit_expected() {
+        assert!(!is_timestamp("202X-03-28_14-30-45")); // letter in year
+        assert!(!is_timestamp("2024-0X-28_14-30-45")); // letter in month
+        assert!(!is_timestamp("2024-03-2X_14-30-45")); // letter in day
+    }
 
     #[test]
     fn backup_file_pattern_test() {

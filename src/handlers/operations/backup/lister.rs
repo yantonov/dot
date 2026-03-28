@@ -19,8 +19,7 @@ pub fn list_backup_files(context: &FileOperationContext,
             .max_depth(1)
             .sort_by(|a, b| a.file_name().cmp(b.file_name()))
             .into_iter()
-            .filter(|entry| entry.is_ok())
-            .map(|entry| entry.unwrap())
+            .filter_map(|entry| entry.ok())
             .filter(|entry| {
                 if let Some(filename) = entry.file_name().to_str() {
                     backup_checker(filename)

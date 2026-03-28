@@ -14,8 +14,7 @@ pub fn iterate_files(root: &Path,
     WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .into_iter()
-        .filter(|entry| entry.is_ok())
-        .map(|entry| entry.unwrap())
+        .filter_map(|entry| entry.ok())
         .filter(|entry| !entry.file_type().is_dir())
         .fold(Ok(()), |result, entry| {
             let operation_result = file_operation.call(context, &entry);

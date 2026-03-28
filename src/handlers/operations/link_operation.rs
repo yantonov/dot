@@ -16,9 +16,10 @@ impl LinkFileOperation {
         if !target_path.exists() {
             return Ok(None);
         }
-        let link = std::fs::read_link(target_path);
-        if link.is_ok() && link.unwrap().as_path() == source_path {
-            return Ok(None);
+        if let Ok(link) = std::fs::read_link(target_path) {
+            if link.as_path() == source_path {
+                return Ok(None);
+            }
         }
 
         let backup_file_path = get_backup_file_path(target_path)?;

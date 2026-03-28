@@ -11,7 +11,7 @@ pub fn list_backup_files(context: &FileOperationContext,
     let target_file_directory = target_file_path.parent().ok_or("cannot get parent directory")?;
 
     let file_name = entry.file_name().to_str().ok_or("cannot get file name")?;
-    let backup_checker = is_backup_file(file_name)?;
+    let backup_checker = is_backup_file(file_name);
 
     Ok(
         WalkDir::new(target_file_directory)

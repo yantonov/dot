@@ -1,13 +1,23 @@
 use std::path::{Path, PathBuf};
 
 use chrono::Local;
-use regex::Regex;
 
-pub fn is_backup_file(original_file: &str) -> Result<impl Fn(&str) -> bool, String> {
-    let string = format!("^{}\\.bak\\.\\d{{4}}-\\d{{2}}-\\d{{2}}_\\d{{2}}-\\d{{2}}-\\d{{2}}$",
-                         regex::escape(original_file));
-    let re = Regex::new(&string).map_err(|e| e.to_string())?;
-    Ok(move |file_to_test| re.is_match(file_to_test))
+fn is_timestamp(s: &str) -> bool {
+    s.len() == 19
+        && s.chars().enumerate().all(|(i, c)| match i {
+            4 | 7 => c == '-',
+            10 => c == '_',
+            13 | 16 => c == '-',
+            _ => c.is_ascii_digit(),
+        })
+}
+
+pub fn is_backup_file(original_file: &str) -> impl Fn(&str) -> bool {
+    let prefix = format!("{}.bak.", original_file);
+    move |file_to_test| {
+        file_to_test.strip_prefix(prefix.as_str())
+            .is_some_and(is_timestamp)
+    }
 }
 
 fn get_timestamp_string() -> String {

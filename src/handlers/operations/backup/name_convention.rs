@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 
 use chrono::Local;
 use regex::Regex;
-use crate::util::to_result;
 
 pub fn is_backup_file(original_file: &str) -> impl Fn(&str) -> bool {
     let string = format!("^{}\\.bak\\.\\d{{4}}-\\d{{2}}-\\d{{2}}_\\d{{2}}-\\d{{2}}-\\d{{2}}$",
@@ -17,7 +16,7 @@ fn get_timestamp_string() -> String {
 
 pub fn get_backup_file_path(file_path: &Path) -> Result<PathBuf, String> {
     let path_str: String = vec![
-        to_result(file_path.to_str(), "cannot get file name")?,
+        file_path.to_str().ok_or("cannot get file name")?,
         ".bak.",
         &get_timestamp_string(),
     ]

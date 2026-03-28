@@ -7,7 +7,6 @@ mod environment;
 mod cli_arguments;
 mod handlers;
 mod log;
-mod util;
 
 fn main() {
     let args = cli_arguments::arguments();

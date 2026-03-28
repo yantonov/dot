@@ -11,7 +11,8 @@ impl FileOperation for RemoveBackupOperation {
     fn call(&self, context: &FileOperationContext, entry: &DirEntry) -> Result<(), String> {
         let files = list_backup_files(context, entry)?;
         for entry in files {
-            let _ = std::fs::remove_file(entry.path());
+            std::fs::remove_file(entry.path())
+                .map_err(|e| e.to_string())?;
         }
         Ok(())
     }

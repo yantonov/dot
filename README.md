@@ -26,6 +26,14 @@ dot link
 ```
 
 ## Installation
+
+### Automatic
+You can use this snippet to install dot binary into ${HOME}/bin/
+```bash
+    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/download.sh" | bash"
+```
+
+### Manual
 1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) under PATH
 2. Use it from any directory (from your git repository or any other folder)
 

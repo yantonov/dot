@@ -5,8 +5,6 @@ set -eu
 SCRIPT="$(basename "$0")"
 cd "$(dirname "$0")"
 
-APP_NAME="dot"
-
 # Detect OS
 case "$(uname -s)" in
   Linux*)
@@ -25,14 +23,14 @@ case "$(uname -s)" in
 esac
 
 REPO="yantonov/dot"
-
 # Get latest tag
 LATEST_TAG=$(
   curl -fsSL "https://api.github.com/repos/${REPO}/tags" \
   | jq -r '.[0].name'
 )
 
-EXECUTABLE_FILENAME="dot"
+APP_NAME="dot"
+EXECUTABLE_FILENAME="${APP_NAME}"
 ARCHIVE_NAME="${EXECUTABLE_FILENAME}-${OS}-${LATEST_TAG}.tar.gz"
 DOWNLOAD_URL="https://github.com/${REPO}/releases/download/${LATEST_TAG}/${ARCHIVE_NAME}"
 
@@ -58,7 +56,6 @@ if [ -z "${BIN_PATH}" ]; then
   rm -rf "${TMP_DIR}"
   exit 1
 fi
-
 
 TARGET_DIR="${HOME}/bin"
 mkdir -p "${TARGET_DIR}"

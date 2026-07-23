@@ -80,6 +80,9 @@ fn validate_dir(path: &Option<String>, title: &str) -> Result<Option<PathBuf>, S
             if !path_buf.exists() {
                 Err(format!("Path '{}' '{}' does not exists", title, p))
             }
+            else if !path_buf.is_dir() {
+                Err(format!("Path '{}' '{}' is not a directory", title, p))
+            }
             else {
                 let canonical_path_buf = fs::canonicalize(&path_buf)
                     .map_err(|_| format!("cannot canonicalize '{}', '{}'", title, p))?;

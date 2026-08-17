@@ -34,7 +34,7 @@ dot --dry-run link
 ## Installation
 
 ### Automatic
-You can use this snippet to install dot binary into ${HOME}/bin/
+You can use this snippet to install dot binary into ${HOME}/.local/bin/
 ```bash
     curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/download.sh" | bash
 ```

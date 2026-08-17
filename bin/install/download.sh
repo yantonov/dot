@@ -57,7 +57,7 @@ if [ -z "${BIN_PATH}" ]; then
   exit 1
 fi
 
-TARGET_DIR="${HOME}/bin"
+TARGET_DIR="${HOME}/.local/bin"
 mkdir -p "${TARGET_DIR}"
 
 # Copy binary to the target directory

@@ -1,0 +1,6 @@
+# Revisions listed here are ignored by `git blame` (and by GitHub's blame
+# view, which reads this file automatically). Configure your local git with:
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# apply cargo fmt across the whole codebase
+e33af33e7466862afeefafe2258998337c7f36cd

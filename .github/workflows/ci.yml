@@ -13,6 +13,7 @@ jobs:
     name: Rust project (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         # windows-latest is intentionally excluded: creating symlinks there
         # requires an elevated privilege (or Developer Mode) that GitHub-hosted
@@ -20,8 +21,8 @@ jobs:
         # tests flaky rather than meaningful.
         os: [ubuntu-latest, macos-latest]
     steps:
-      - uses: actions/checkout@v2
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@1.97.1
         with:
           components: clippy, rustfmt
       - run: cargo build

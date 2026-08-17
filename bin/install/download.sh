@@ -24,16 +24,23 @@ esac
 
 REPO="yantonov/dot"
 
-# The version comes from the latest published release rather than from the tag
-# list. A tag exists the moment it is pushed, while the release built from it
-# stays a draft until someone publishes it, so the newest tag can easily point
-# at assets that cannot be downloaded yet. Following the redirect of the
-# 'latest release' page also keeps this free of a json parser and of the
-# unauthenticated api rate limit.
-LATEST_TAG="$(
-  curl -fsSLo /dev/null -w '%{url_effective}' "https://github.com/${REPO}/releases/latest" \
-  | sed 's#.*/tag/##'
-)"
+# install.sh passes the release it resolved, so that the script and the binary
+# both come from one and the same release. Run on its own, this script falls
+# back to the latest published one.
+LATEST_TAG="${1:-}"
+
+if [ -z "${LATEST_TAG}" ]; then
+  # The version comes from the latest published release rather than from the
+  # tag list. A tag exists the moment it is pushed, while the release built
+  # from it stays a draft until someone publishes it, so the newest tag can
+  # easily point at assets that cannot be downloaded yet. Following the
+  # redirect of the 'latest release' page also keeps this free of a json
+  # parser and of the unauthenticated api rate limit.
+  LATEST_TAG="$(
+    curl -fsSLo /dev/null -w '%{url_effective}' "https://github.com/${REPO}/releases/latest" \
+    | sed 's#.*/tag/##'
+  )"
+fi
 
 case "${LATEST_TAG}" in
   ''|*/*)

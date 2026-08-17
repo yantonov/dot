@@ -39,13 +39,18 @@ You can use this snippet to install dot binary into ${HOME}/.local/bin/
     sh -c '
     set -eu
     tmp="$(mktemp)"
-    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/download.sh" -o "$tmp"
+    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/install.sh" -o "$tmp"
     sh "$tmp"
     rm -f "$tmp"
     '
 ```
 The script is downloaded to a file and only then run: piping curl straight into a
 shell hides a failed download behind an empty, silently "successful" script.
+
+`install.sh` resolves the latest published release and fetches the actual
+download script from that same release tag (not from master), so the two can
+never drift apart. A specific release can be installed instead with
+`DOT_VERSION`, e.g. `DOT_VERSION=<tag> sh "$tmp"`.
 
 ### Manual
 1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) under PATH

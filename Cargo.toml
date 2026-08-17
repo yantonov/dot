@@ -3,6 +3,7 @@ name = "dot"
 version = "0.2.3"
 authors = ["Yury Antonov <1390348+yantonov@users.noreply.github.com>"]
 edition = "2024"
+rust-version = "1.88.0"
 description = "Helps to use dot files from the version control system"
 license = "Apache-2.0"
 repository = "https://github.com/yantonov/dot"

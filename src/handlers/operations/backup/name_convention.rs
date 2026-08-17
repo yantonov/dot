@@ -29,7 +29,8 @@ fn is_timestamp(s: &str) -> bool {
 pub fn is_backup_file(original_file: &str) -> impl Fn(&str) -> bool {
     let prefix = format!("{}.bak.", original_file);
     move |file_to_test| {
-        file_to_test.strip_prefix(prefix.as_str())
+        file_to_test
+            .strip_prefix(prefix.as_str())
             .is_some_and(is_timestamp)
     }
 }
@@ -44,7 +45,7 @@ pub fn get_backup_file_path(file_path: &Path) -> Result<PathBuf, String> {
         ".bak.",
         &get_timestamp_string(),
     ]
-        .join("");
+    .join("");
     Ok(Path::new(&path_str).to_path_buf())
 }
 
@@ -63,7 +64,7 @@ mod tests {
     #[test]
     fn timestamp_wrong_length() {
         assert!(!is_timestamp(""));
-        assert!(!is_timestamp("2024-03-28_14-30-4"));  // one char short
+        assert!(!is_timestamp("2024-03-28_14-30-4")); // one char short
         assert!(!is_timestamp("2024-03-28_14-30-450")); // one char long
     }
 
@@ -84,7 +85,9 @@ mod tests {
     #[test]
     fn backup_file_pattern_test() {
         assert!(is_backup_file("test")("test.bak.2020-01-01_12-01-01"));
-        assert!(is_backup_file("test.bak")("test.bak.bak.2020-01-01_12-01-01"));
+        assert!(is_backup_file("test.bak")(
+            "test.bak.bak.2020-01-01_12-01-01"
+        ));
     }
 
     #[test]
@@ -92,6 +95,8 @@ mod tests {
         assert!(!is_backup_file("test.txt")("test.txt"));
         assert!(!is_backup_file("test.txt")("test.txt.bak"));
         assert!(!is_backup_file("test.txt")("test.txt.bak.2020-01-01"));
-        assert!(!is_backup_file("prefix")("prefix_test.txt.bak.2020-01-01_12-01-01"));
+        assert!(!is_backup_file("prefix")(
+            "prefix_test.txt.bak.2020-01-01_12-01-01"
+        ));
     }
 }

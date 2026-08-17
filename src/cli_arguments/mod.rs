@@ -1,30 +1,39 @@
-use std::fs;
-use std::path::{PathBuf};
+use crate::environment::{Environment, system_environment};
 use clap::Parser;
-use crate::environment::{system_environment, Environment};
+use std::fs;
+use std::path::PathBuf;
 
 #[derive(Parser)]
 #[clap(version)]
 struct Opts {
-    #[clap(short, long, help="Verbose output")]
+    #[clap(short, long, help = "Verbose output")]
     verbose: bool,
-    #[clap(long, help="Show what would be done, without making changes")]
+    #[clap(long, help = "Show what would be done, without making changes")]
     dry_run: bool,
     #[clap(subcommand)]
     command: Command,
-    #[clap(short, long, help="Repository/source path")]
+    #[clap(short, long, help = "Repository/source path")]
     source: Option<String>,
-    #[clap(short, long, help="Target path")]
+    #[clap(short, long, help = "Target path")]
     target: Option<String>,
 }
 
 #[derive(Parser)]
 pub enum Command {
-    #[clap(about = "create symbolic links, backup files will be generated", display_order = 0)]
+    #[clap(
+        about = "create symbolic links, backup files will be generated",
+        display_order = 0
+    )]
     Link(Link),
-    #[clap(about = "remove symbolic links, and use regular files", display_order = 1)]
+    #[clap(
+        about = "remove symbolic links, and use regular files",
+        display_order = 1
+    )]
     Unlink(Unlink),
-    #[clap(about = "list files (recursively) inside the current directory", display_order = 2)]
+    #[clap(
+        about = "list files (recursively) inside the current directory",
+        display_order = 2
+    )]
     List(List),
     #[clap(about = "backup commands", display_order = 3)]
     Backup(Backup),
@@ -81,11 +90,9 @@ fn validate_dir(path: &Option<String>, title: &str) -> Result<Option<PathBuf>, S
             let path_buf = PathBuf::from(p);
             if !path_buf.exists() {
                 Err(format!("Path '{}' '{}' does not exists", title, p))
-            }
-            else if !path_buf.is_dir() {
+            } else if !path_buf.is_dir() {
                 Err(format!("Path '{}' '{}' is not a directory", title, p))
-            }
-            else {
+            } else {
                 let canonical_path_buf = fs::canonicalize(&path_buf)
                     .map_err(|_| format!("cannot canonicalize '{}', '{}'", title, p))?;
                 Ok(Some(canonical_path_buf))
@@ -99,9 +106,13 @@ impl Arguments {
         &self.args.command
     }
 
-    pub fn verbose(&self) -> bool { self.args.verbose }
+    pub fn verbose(&self) -> bool {
+        self.args.verbose
+    }
 
-    pub fn dry_run(&self) -> bool { self.args.dry_run }
+    pub fn dry_run(&self) -> bool {
+        self.args.dry_run
+    }
 
     pub fn target_directory(&self) -> Result<Option<PathBuf>, String> {
         validate_dir(&self.args.target, "target directory")
@@ -113,13 +124,13 @@ impl Arguments {
 }
 
 pub fn arguments() -> Arguments {
-    Arguments { args: Opts::parse() }
+    Arguments {
+        args: Opts::parse(),
+    }
 }
 
 pub fn environment(args: &Arguments) -> Result<Environment, String> {
     let source_directory = args.source_directory()?;
     let target_directory = args.target_directory()?;
-    system_environment(
-        &source_directory,
-        &target_directory)
+    system_environment(&source_directory, &target_directory)
 }

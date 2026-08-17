@@ -7,7 +7,6 @@ use crate::handlers::utils::file_operation_context::FileOperationContext;
 pub struct ListBackupOperation {}
 
 impl FileOperation for ListBackupOperation {
-
     fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String> {
         let files = list_backup_files(context, entry)?;
         for entry in files {

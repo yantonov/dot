@@ -21,9 +21,7 @@ impl Logger {
                     self.log_internal(level, message);
                 }
             }
-            LogLevel::Error => {
-                self.log_internal(level, message)
-            }
+            LogLevel::Error => self.log_internal(level, message),
         }
     }
 

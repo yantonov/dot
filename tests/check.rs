@@ -1,7 +1,7 @@
 mod common;
 
-use std::fs;
 use common::{dot_with_dirs, source_and_target, symlinks_supported};
+use std::fs;
 
 #[test]
 fn fails_when_symlinks_do_not_exist_yet() {
@@ -34,7 +34,10 @@ fn succeeds_after_linking() {
         .arg("check")
         .status()
         .expect("failed to run dot check");
-    assert!(check_status.success(), "check should succeed once every file is linked");
+    assert!(
+        check_status.success(),
+        "check should succeed once every file is linked"
+    );
 }
 
 #[test]
@@ -59,5 +62,8 @@ fn fails_when_only_some_files_are_linked() {
         .arg("check")
         .status()
         .expect("failed to run dot check");
-    assert!(!check_status.success(), "check should fail when a source file has no link");
+    assert!(
+        !check_status.success(),
+        "check should fail when a source file has no link"
+    );
 }

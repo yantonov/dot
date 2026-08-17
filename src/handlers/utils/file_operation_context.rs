@@ -11,7 +11,11 @@ pub struct FileOperationContext<'a> {
 }
 
 impl<'a> FileOperationContext<'a> {
-    pub fn create(env: &'a Environment, logger: &'a Logger, dry_run: bool) -> FileOperationContext<'a> {
+    pub fn create(
+        env: &'a Environment,
+        logger: &'a Logger,
+        dry_run: bool,
+    ) -> FileOperationContext<'a> {
         FileOperationContext {
             target_directory: env.target_directory(),
             source_directory: env.source_directory(),

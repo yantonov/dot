@@ -4,7 +4,7 @@ use walkdir::DirEntry;
 
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
-use crate::handlers::utils::file_utils::{target_path};
+use crate::handlers::utils::file_utils::target_path;
 
 pub struct UnlinkFileOperation {}
 
@@ -17,7 +17,6 @@ impl UnlinkFileOperation {
 }
 
 impl FileOperation for UnlinkFileOperation {
-
     fn call(&self, context: &FileOperationContext, entry: &DirEntry) -> Result<(), String> {
         let target_file_pathbuf = target_path(context, entry)?;
         let target_file_path = target_file_pathbuf.as_path();
@@ -31,14 +30,13 @@ impl FileOperation for UnlinkFileOperation {
             context.logger().log_dry_run_plan(&format!(
                 "would replace symlink {} with a regular copy of {}",
                 target_file_path.display(),
-                source_file_path.display()));
+                source_file_path.display()
+            ));
             return Ok(());
         }
 
-        std::fs::remove_file(target_file_path)
-            .map_err(|e| e.to_string())?;
-        std::fs::copy(source_file_path, target_file_path)
-            .map_err(|e| e.to_string())?;
+        std::fs::remove_file(target_file_path).map_err(|e| e.to_string())?;
+        std::fs::copy(source_file_path, target_file_path).map_err(|e| e.to_string())?;
         Ok(())
     }
 }

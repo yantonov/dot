@@ -1,13 +1,12 @@
-use walkdir::DirEntry;
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
 use crate::handlers::utils::file_utils::target_path;
 use std::path::Path;
+use walkdir::DirEntry;
 
 pub struct CheckFileOperation {}
 
-fn exists(target_path: &Path,
-          source_path: &Path) -> bool {
+fn exists(target_path: &Path, source_path: &Path) -> bool {
     if !target_path.exists() {
         return false;
     }
@@ -19,7 +18,7 @@ impl FileOperation for CheckFileOperation {
     fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String> {
         match exists(&target_path(context, entry)?, entry.path()) {
             true => Ok(()),
-            false => Err("symlink does not exist".to_string())
+            false => Err("symlink does not exist".to_string()),
         }
     }
 }

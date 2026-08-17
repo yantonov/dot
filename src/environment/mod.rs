@@ -20,8 +20,7 @@ struct DefaultEnvironment {}
 
 impl DefaultEnvironment {
     fn source_directory(&self) -> Result<PathBuf, String> {
-        env::current_dir()
-            .map_err(|_| "cannot get current directory".to_string())
+        env::current_dir().map_err(|_| "cannot get current directory".to_string())
     }
 
     fn target_directory(&self) -> Result<PathBuf, String> {
@@ -31,13 +30,13 @@ impl DefaultEnvironment {
     }
 }
 
-pub fn system_environment(source: &Option<PathBuf>,
-                          target: &Option<PathBuf>) -> Result<Environment, String> {
+pub fn system_environment(
+    source: &Option<PathBuf>,
+    target: &Option<PathBuf>,
+) -> Result<Environment, String> {
     let default_env = DefaultEnvironment {};
     Ok(Environment {
-        source_directory: source.clone()
-            .unwrap_or(default_env.source_directory()?),
-        target_directory: target.clone()
-            .unwrap_or(default_env.target_directory()?),
+        source_directory: source.clone().unwrap_or(default_env.source_directory()?),
+        target_directory: target.clone().unwrap_or(default_env.target_directory()?),
     })
 }

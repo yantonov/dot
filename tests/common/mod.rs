@@ -9,15 +9,19 @@ pub fn dot() -> Command {
 // The whole test suite exercises `--source`/`--target` so it never touches
 // the real HOME directory, only these disposable temp dirs.
 pub fn source_and_target() -> (TempDir, TempDir) {
-    (tempfile::tempdir().expect("source tempdir"),
-     tempfile::tempdir().expect("target tempdir"))
+    (
+        tempfile::tempdir().expect("source tempdir"),
+        tempfile::tempdir().expect("target tempdir"),
+    )
 }
 
 pub fn dot_with_dirs(source: &TempDir, target: &TempDir) -> Command {
     let mut cmd = dot();
     cmd.args([
-        "--source", source.path().to_str().unwrap(),
-        "--target", target.path().to_str().unwrap(),
+        "--source",
+        source.path().to_str().unwrap(),
+        "--target",
+        target.path().to_str().unwrap(),
     ]);
     cmd
 }

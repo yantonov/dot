@@ -1,7 +1,7 @@
 mod common;
 
-use std::fs;
 use common::{dot_with_dirs, source_and_target, symlinks_supported};
+use std::fs;
 
 fn link_and_produce_a_backup(source: &tempfile::TempDir, target: &tempfile::TempDir) {
     fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
@@ -15,7 +15,8 @@ fn link_and_produce_a_backup(source: &tempfile::TempDir, target: &tempfile::Temp
 }
 
 fn backup_file_names(target: &tempfile::TempDir) -> Vec<String> {
-    fs::read_dir(target.path()).unwrap()
+    fs::read_dir(target.path())
+        .unwrap()
         .filter_map(|e| e.ok())
         .map(|e| e.file_name().to_string_lossy().into_owned())
         .filter(|name| name.starts_with("bashrc.bak."))
@@ -38,7 +39,10 @@ fn removes_backup_files() {
         .expect("failed to run dot backup remove");
     assert!(status.success());
 
-    assert!(backup_file_names(&target).is_empty(), "backup file should have been removed");
+    assert!(
+        backup_file_names(&target).is_empty(),
+        "backup file should have been removed"
+    );
 }
 
 #[test]
@@ -57,6 +61,9 @@ fn dry_run_does_not_remove_backup_files() {
         .expect("failed to run dot backup remove --dry-run");
     assert!(status.success());
 
-    assert_eq!(backup_file_names(&target).len(), 1,
-               "dry run must not remove the backup file");
+    assert_eq!(
+        backup_file_names(&target).len(),
+        1,
+        "dry run must not remove the backup file"
+    );
 }

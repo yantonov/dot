@@ -5,27 +5,28 @@ use walkdir::DirEntry;
 use crate::handlers::operations::backup::name_convention::get_backup_file_path;
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
-use crate::handlers::utils::file_utils::{target_path};
+use crate::handlers::utils::file_utils::target_path;
 
 pub struct LinkFileOperation {}
 
 impl LinkFileOperation {
-    fn needs_backup(&self,
-                    target_path: &Path,
-                    source_path: &Path) -> bool {
+    fn needs_backup(&self, target_path: &Path, source_path: &Path) -> bool {
         if !target_path.exists() {
             return false;
         }
         if let Ok(link) = std::fs::read_link(target_path)
-            && link.as_path() == source_path {
+            && link.as_path() == source_path
+        {
             return false;
         }
         true
     }
 
-    fn create_backup_file(&self,
-                          target_path: &Path,
-                          source_path: &Path) -> Result<Option<PathBuf>, String> {
+    fn create_backup_file(
+        &self,
+        target_path: &Path,
+        source_path: &Path,
+    ) -> Result<Option<PathBuf>, String> {
         if !self.needs_backup(target_path, source_path) {
             return Ok(None);
         }
@@ -38,40 +39,42 @@ impl LinkFileOperation {
             .map_err(|e| e.to_string())
     }
 
-    fn describe_plan(&self,
-                     context: &FileOperationContext<'_>,
-                     target_file_path: &Path,
-                     source_file_path: &Path) -> Result<(), String> {
+    fn describe_plan(
+        &self,
+        context: &FileOperationContext<'_>,
+        target_file_path: &Path,
+        source_file_path: &Path,
+    ) -> Result<(), String> {
         if self.needs_backup(target_file_path, source_file_path) {
             let backup_file_path = get_backup_file_path(target_file_path)?;
             context.logger().log_dry_run_plan(&format!(
                 "would back up {} to {}, then link it to {}",
                 target_file_path.display(),
                 backup_file_path.display(),
-                source_file_path.display()));
+                source_file_path.display()
+            ));
         } else if !target_file_path.exists() {
             context.logger().log_dry_run_plan(&format!(
                 "would link {} to {}",
                 target_file_path.display(),
-                source_file_path.display()));
+                source_file_path.display()
+            ));
         }
         Ok(())
     }
 
-    fn create_parent_directory(&self,
-                               target_file_path: &Path) -> Result<(), String> {
-        let target_file_path_parent_dir = target_file_path.parent()
+    fn create_parent_directory(&self, target_file_path: &Path) -> Result<(), String> {
+        let target_file_path_parent_dir = target_file_path
+            .parent()
             .ok_or("cannot get parent directory")?;
         if !target_file_path_parent_dir.exists() {
-            std::fs::create_dir_all(target_file_path_parent_dir)
-                .map_err(|e| e.to_string())?;
+            std::fs::create_dir_all(target_file_path_parent_dir).map_err(|e| e.to_string())?;
         }
         Ok(())
     }
 }
 
 impl FileOperation for LinkFileOperation {
-
     fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String> {
         let target_file_pathbuf = target_path(context, entry)?;
         let target_file_path = target_file_pathbuf.as_path();
@@ -90,8 +93,7 @@ impl FileOperation for LinkFileOperation {
         // from the situation that we are trying to delete the nonexistent file
         let metadata = std::fs::symlink_metadata(target_file_path);
         if metadata.is_ok() {
-            std::fs::remove_file(target_file_path)
-                .map_err(|e| e.to_string())?;
+            std::fs::remove_file(target_file_path).map_err(|e| e.to_string())?;
         }
         match symlink::symlink_file(source_file_path, target_file_path) {
             Ok(_) => Ok(()),

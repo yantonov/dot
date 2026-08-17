@@ -1,7 +1,7 @@
 mod common;
 
-use std::fs;
 use common::{dot_with_dirs, source_and_target, symlinks_supported};
+use std::fs;
 
 #[test]
 fn creates_symlink_pointing_at_source_file() {
@@ -62,12 +62,18 @@ fn backs_up_existing_file_before_linking() {
         .expect("failed to run dot");
     assert!(status.success());
 
-    let backups: Vec<_> = fs::read_dir(target.path()).unwrap()
+    let backups: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
         .filter_map(|e| e.ok())
         .map(|e| e.file_name().to_string_lossy().into_owned())
         .filter(|name| name.starts_with("bashrc.bak."))
         .collect();
-    assert_eq!(backups.len(), 1, "expected exactly one backup file, found {:?}", backups);
+    assert_eq!(
+        backups.len(),
+        1,
+        "expected exactly one backup file, found {:?}",
+        backups
+    );
 
     let backup_content = fs::read_to_string(target.path().join(&backups[0])).unwrap();
     assert_eq!(backup_content, "old content");
@@ -89,17 +95,30 @@ fn dry_run_does_not_touch_the_filesystem() {
         .expect("failed to run dot");
     assert!(status.success());
 
-    assert_eq!(fs::read_to_string(target.path().join("bashrc")).unwrap(), "old content",
-               "dry run must not overwrite the existing target file");
-    assert!(fs::symlink_metadata(target.path().join("bashrc")).unwrap().file_type().is_file(),
-            "dry run must not replace the target file with a symlink");
+    assert_eq!(
+        fs::read_to_string(target.path().join("bashrc")).unwrap(),
+        "old content",
+        "dry run must not overwrite the existing target file"
+    );
+    assert!(
+        fs::symlink_metadata(target.path().join("bashrc"))
+            .unwrap()
+            .file_type()
+            .is_file(),
+        "dry run must not replace the target file with a symlink"
+    );
 
-    let backups: Vec<_> = fs::read_dir(target.path()).unwrap()
+    let backups: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
         .filter_map(|e| e.ok())
         .map(|e| e.file_name().to_string_lossy().into_owned())
         .filter(|name| name.starts_with("bashrc.bak."))
         .collect();
-    assert!(backups.is_empty(), "dry run must not create a backup file, found {:?}", backups);
+    assert!(
+        backups.is_empty(),
+        "dry run must not create a backup file, found {:?}",
+        backups
+    );
 }
 
 #[test]
@@ -120,12 +139,16 @@ fn running_link_twice_does_not_create_a_second_backup() {
         assert!(status.success());
     }
 
-    let backups: Vec<_> = fs::read_dir(target.path()).unwrap()
+    let backups: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
         .filter_map(|e| e.ok())
         .map(|e| e.file_name().to_string_lossy().into_owned())
         .filter(|name| name.starts_with("bashrc.bak."))
         .collect();
-    assert_eq!(backups.len(), 1,
-               "re-linking an already-correct symlink should not create another backup, found {:?}",
-               backups);
+    assert_eq!(
+        backups.len(),
+        1,
+        "re-linking an already-correct symlink should not create another backup, found {:?}",
+        backups
+    );
 }

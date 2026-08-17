@@ -1,15 +1,16 @@
 use std::path::Path;
 
-use walkdir::{DirEntry, WalkDir};
 use crate::handlers::utils::file_operation_context::FileOperationContext;
+use walkdir::{DirEntry, WalkDir};
 
 pub trait FileOperation {
     fn call(&self, context: &FileOperationContext<'_>, entry: &DirEntry) -> Result<(), String>;
 }
 
-pub fn iterate_files(root: &Path,
-                     context: &FileOperationContext<'_>,
-                     file_operation: &dyn FileOperation,
+pub fn iterate_files(
+    root: &Path,
+    context: &FileOperationContext<'_>,
+    file_operation: &dyn FileOperation,
 ) -> Result<(), String> {
     // every entry must be processed even after an earlier one fails, so each
     // failing file gets reported instead of stopping at the first error -
@@ -24,7 +25,7 @@ pub fn iterate_files(root: &Path,
             let operation_result = file_operation.call(context, &entry);
             match operation_result {
                 Ok(_) => result,
-                Err(_) => operation_result
+                Err(_) => operation_result,
             }
         });
     result

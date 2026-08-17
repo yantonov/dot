@@ -16,7 +16,7 @@ impl FileOperation for LoggedOperation<'_> {
             context
                 .logger()
                 .log(LogLevel::Error, &format!("{} - {}", entry_path_str, e))
-        } else {
+        } else if !context.dry_run() {
             context.logger().log(
                 LogLevel::Info,
                 &format!("[{}] - {}", green("Ok"), entry_path_str),

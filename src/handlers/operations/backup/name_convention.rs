@@ -39,7 +39,7 @@ fn get_timestamp_string() -> String {
 }
 
 pub fn get_backup_file_path(file_path: &Path) -> Result<PathBuf, String> {
-    let path_str: String = vec![
+    let path_str: String = [
         file_path.to_str().ok_or("cannot get file name")?,
         ".bak.",
         &get_timestamp_string(),

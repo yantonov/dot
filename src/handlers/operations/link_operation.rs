@@ -16,10 +16,9 @@ impl LinkFileOperation {
         if !target_path.exists() {
             return false;
         }
-        if let Ok(link) = std::fs::read_link(target_path) {
-            if link.as_path() == source_path {
-                return false;
-            }
+        if let Ok(link) = std::fs::read_link(target_path)
+            && link.as_path() == source_path {
+            return false;
         }
         true
     }
@@ -94,7 +93,7 @@ impl FileOperation for LinkFileOperation {
             std::fs::remove_file(target_file_path)
                 .map_err(|e| e.to_string())?;
         }
-        match symlink::symlink_file(source_file_path, &target_file_path) {
+        match symlink::symlink_file(source_file_path, target_file_path) {
             Ok(_) => Ok(()),
             Err(e) => {
                 match backup_file_result {

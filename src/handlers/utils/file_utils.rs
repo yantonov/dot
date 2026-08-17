@@ -4,7 +4,7 @@ use walkdir::DirEntry;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
 
 fn get_relative_file_name(root: &Path, entry: &DirEntry) -> Result<String, String> {
-    let stripped = entry.path().strip_prefix(&root)
+    let stripped = entry.path().strip_prefix(root)
         .map_err(|_| "cannot strip prefix")?;
     stripped.to_str().ok_or_else(|| "cannot get file name".to_string()).map(|x| x.to_string())
 }

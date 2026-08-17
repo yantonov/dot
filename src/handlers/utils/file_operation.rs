@@ -11,7 +11,11 @@ pub fn iterate_files(root: &Path,
                      context: &FileOperationContext<'_>,
                      file_operation: &dyn FileOperation,
 ) -> Result<(), String> {
-    WalkDir::new(root)
+    // every entry must be processed even after an earlier one fails, so each
+    // failing file gets reported instead of stopping at the first error -
+    // try_fold's short-circuit-on-Err behavior would be wrong here.
+    #[allow(clippy::manual_try_fold)]
+    let result = WalkDir::new(root)
         .sort_by(|a, b| a.file_name().cmp(b.file_name()))
         .into_iter()
         .filter_map(|entry| entry.ok())
@@ -22,5 +26,6 @@ pub fn iterate_files(root: &Path,
                 Ok(_) => result,
                 Err(_) => operation_result
             }
-        })
+        });
+    result
 }

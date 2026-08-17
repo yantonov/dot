@@ -10,8 +10,15 @@ name: ci
 
 jobs:
   build_and_test:
-    name: Rust project
-    runs-on: ubuntu-latest
+    name: Rust project (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # windows-latest is intentionally excluded: creating symlinks there
+        # requires an elevated privilege (or Developer Mode) that GitHub-hosted
+        # runners may not consistently grant, which would make the symlink
+        # tests flaky rather than meaningful.
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1

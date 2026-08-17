@@ -7,14 +7,16 @@ pub struct FileOperationContext<'a> {
     target_directory: &'a Path,
     source_directory: &'a Path,
     logger: &'a Logger,
+    dry_run: bool,
 }
 
 impl<'a> FileOperationContext<'a> {
-    pub fn create(env: &'a Environment, logger: &'a Logger) -> FileOperationContext<'a> {
+    pub fn create(env: &'a Environment, logger: &'a Logger, dry_run: bool) -> FileOperationContext<'a> {
         FileOperationContext {
             target_directory: env.target_directory(),
             source_directory: env.source_directory(),
             logger,
+            dry_run,
         }
     }
 
@@ -28,5 +30,9 @@ impl<'a> FileOperationContext<'a> {
 
     pub fn logger(&self) -> &Logger {
         self.logger
+    }
+
+    pub fn dry_run(&self) -> bool {
+        self.dry_run
     }
 }

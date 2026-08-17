@@ -8,6 +8,8 @@ use crate::environment::{system_environment, Environment};
 struct Opts {
     #[clap(short, long, help="Verbose output")]
     verbose: bool,
+    #[clap(long, help="Show what would be done, without making changes")]
+    dry_run: bool,
     #[clap(subcommand)]
     command: Command,
     #[clap(short, long, help="Repository/source path")]
@@ -98,6 +100,8 @@ impl Arguments {
     }
 
     pub fn verbose(&self) -> bool { self.args.verbose }
+
+    pub fn dry_run(&self) -> bool { self.args.dry_run }
 
     pub fn target_directory(&self) -> Result<Option<PathBuf>, String> {
         validate_dir(&self.args.target, "target directory")

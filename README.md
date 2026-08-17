@@ -25,6 +25,12 @@ No specific layout (directory structure) or additional configuration files are r
 dot link
 ```
 
+Use `--dry-run` with `link`, `unlink`, or `backup remove` to see what would be done, without making any changes:
+
+```
+dot --dry-run link
+```
+
 ## Installation
 
 ### Automatic

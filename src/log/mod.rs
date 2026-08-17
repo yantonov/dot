@@ -10,6 +10,10 @@ pub enum LogLevel {
 }
 
 impl Logger {
+    pub fn log_dry_run_plan(&self, message: &str) {
+        self.log(LogLevel::Info, &format!("[DRY RUN] {}", message));
+    }
+
     pub fn log(&self, level: LogLevel, message: &str) {
         match level {
             LogLevel::Info => {

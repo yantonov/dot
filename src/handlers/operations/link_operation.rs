@@ -10,16 +10,25 @@ use crate::handlers::utils::file_utils::{target_path};
 pub struct LinkFileOperation {}
 
 impl LinkFileOperation {
-    fn create_backup_file(&self,
-                          target_path: &Path,
-                          source_path: &Path) -> Result<Option<PathBuf>, String> {
+    fn needs_backup(&self,
+                    target_path: &Path,
+                    source_path: &Path) -> bool {
         if !target_path.exists() {
-            return Ok(None);
+            return false;
         }
         if let Ok(link) = std::fs::read_link(target_path) {
             if link.as_path() == source_path {
-                return Ok(None);
+                return false;
             }
+        }
+        true
+    }
+
+    fn create_backup_file(&self,
+                          target_path: &Path,
+                          source_path: &Path) -> Result<Option<PathBuf>, String> {
+        if !self.needs_backup(target_path, source_path) {
+            return Ok(None);
         }
 
         let backup_file_path = get_backup_file_path(target_path)?;
@@ -28,6 +37,26 @@ impl LinkFileOperation {
         std::fs::copy(target_path, backup_file_path)
             .map(|_| Some(backup_file_path_result))
             .map_err(|e| e.to_string())
+    }
+
+    fn describe_plan(&self,
+                     context: &FileOperationContext<'_>,
+                     target_file_path: &Path,
+                     source_file_path: &Path) -> Result<(), String> {
+        if self.needs_backup(target_file_path, source_file_path) {
+            let backup_file_path = get_backup_file_path(target_file_path)?;
+            context.logger().log_dry_run_plan(&format!(
+                "would back up {} to {}, then link it to {}",
+                target_file_path.display(),
+                backup_file_path.display(),
+                source_file_path.display()));
+        } else if !target_file_path.exists() {
+            context.logger().log_dry_run_plan(&format!(
+                "would link {} to {}",
+                target_file_path.display(),
+                source_file_path.display()));
+        }
+        Ok(())
     }
 
     fn create_parent_directory(&self,
@@ -48,6 +77,10 @@ impl FileOperation for LinkFileOperation {
         let target_file_pathbuf = target_path(context, entry)?;
         let target_file_path = target_file_pathbuf.as_path();
         let source_file_path = entry.path();
+
+        if context.dry_run() {
+            return self.describe_plan(context, target_file_path, source_file_path);
+        }
 
         self.create_parent_directory(target_file_path)?;
 

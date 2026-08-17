@@ -10,19 +10,21 @@ mod log;
 
 fn main() {
     let args = cli_arguments::arguments();
-    let logger = log::create(args.verbose());
+    let dry_run = args.dry_run();
+    // dry-run implies verbose: the point of a dry run is to see what would happen
+    let logger = log::create(args.verbose() || dry_run);
     match cli_arguments::environment(&args) {
         Ok(env) => {
             let result = match args.command() {
-                Link(_) => handlers::link(&env, &logger),
-                Unlink(_) => handlers::unlink(&env, &logger),
+                Link(_) => handlers::link(&env, &logger, dry_run),
+                Unlink(_) => handlers::unlink(&env, &logger, dry_run),
                 List(_) => handlers::list(&env, &logger),
                 Backup(subcommand) => {
                     match subcommand.backup_subcommand() {
                         BackupSubcommand::List(_) =>
                             handlers::list_backup(&env, &logger),
                         BackupSubcommand::Remove(_) =>
-                            handlers::remove_backup(&env, &logger),
+                            handlers::remove_backup(&env, &logger, dry_run),
                     }
                 }
                 Check(_) => handlers::check(&env, &logger),

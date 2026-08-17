@@ -47,12 +47,32 @@ echo "Latest tag: ${LATEST_TAG}"
 echo "Downloading: ${DOWNLOAD_URL}"
 
 TMP_DIR="$(mktemp -d)"
-ARCHIVE_PATH="${TMP_DIR}/${EXECUTABLE_FILENAME}.tar.gz"
+ARCHIVE_PATH="${TMP_DIR}/${ARCHIVE_NAME}"
+CHECKSUM_PATH="${ARCHIVE_PATH}.sha256"
 
 echo $ARCHIVE_PATH
 
 # Download archive
 curl -fL "${DOWNLOAD_URL}" -o "${ARCHIVE_PATH}"
+
+# Download and verify checksum
+curl -fL "${DOWNLOAD_URL}.sha256" -o "${CHECKSUM_PATH}"
+
+if command -v sha256sum >/dev/null 2>&1; then
+  CHECKSUM_TOOL="sha256sum"
+elif command -v shasum >/dev/null 2>&1; then
+  CHECKSUM_TOOL="shasum -a 256"
+else
+  echo "Neither sha256sum nor shasum is available to verify the download"
+  rm -rf "${TMP_DIR}"
+  exit 1
+fi
+
+if ! (cd "${TMP_DIR}" && ${CHECKSUM_TOOL} -c "$(basename "${CHECKSUM_PATH}")"); then
+  echo "Checksum verification failed for ${ARCHIVE_PATH}"
+  rm -rf "${TMP_DIR}"
+  exit 1
+fi
 
 # Extract archive
 tar -xzf "${ARCHIVE_PATH}" -C "${TMP_DIR}"

@@ -2,7 +2,7 @@
 
 cd "$(dirname "$0")"
 
-cd ..
+cd ../..
 
 EXECUTABLE_NAME="$(basename $(pwd))"
 

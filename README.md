@@ -36,7 +36,7 @@ dot --dry-run link
 ### Automatic
 You can use this snippet to install dot binary into ${HOME}/bin/
 ```bash
-    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/download.sh" | bash"
+    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/download.sh" | bash
 ```
 
 ### Manual

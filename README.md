@@ -36,8 +36,16 @@ dot --dry-run link
 ### Automatic
 You can use this snippet to install dot binary into ${HOME}/.local/bin/
 ```bash
-    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/download.sh" | bash
+    sh -c '
+    set -eu
+    tmp="$(mktemp)"
+    curl -fsSL "https://raw.githubusercontent.com/yantonov/dot/master/bin/install/download.sh" -o "$tmp"
+    sh "$tmp"
+    rm -f "$tmp"
+    '
 ```
+The script is downloaded to a file and only then run: piping curl straight into a
+shell hides a failed download behind an empty, silently "successful" script.
 
 ### Manual
 1. Put the binary ([latest release](https://github.com/yantonov/dot/releases/latest)) under PATH

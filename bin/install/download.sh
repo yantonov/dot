@@ -121,3 +121,14 @@ chmod +x "${TARGET_DIR}/${BINARY_NAME}"
 rm -rf "${TMP_DIR}"
 
 echo "Installed: ${TARGET_DIR}/${BINARY_NAME}"
+
+# Colon-wrapped comparison so the check matches a whole PATH entry rather
+# than a substring of a longer, unrelated one.
+case ":${PATH}:" in
+  *":${TARGET_DIR}:"*)
+    ;;
+  *)
+    echo "Note: ${TARGET_DIR} is not on your PATH yet. Add it, e.g.:"
+    echo "  export PATH=\"${TARGET_DIR}:\$PATH\""
+    ;;
+esac

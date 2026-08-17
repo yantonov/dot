@@ -1,4 +1,4 @@
-use colored::{ColoredString, Colorize};
+use std::io::IsTerminal;
 
 pub struct Logger {
     verbose: bool,
@@ -29,14 +29,33 @@ impl Logger {
         println!("{} {}", self.level_token(level), message);
     }
 
-    fn level_token(&self, level: LogLevel) -> ColoredString {
+    fn level_token(&self, level: LogLevel) -> String {
         match level {
-            LogLevel::Info => "".normal(),
-            LogLevel::Error => "[Error]".red(),
+            LogLevel::Info => "".to_string(),
+            LogLevel::Error => red("[Error]"),
         }
     }
 }
 
 pub fn create(verbose: bool) -> Logger {
     Logger { verbose }
+}
+
+// A hand-rolled ANSI wrapper instead of a color crate: only two tokens ever
+// need coloring, and clap already links its own terminal-color handling for
+// its help/error output, so a second full color crate would be redundant.
+fn colorize(code: &str, text: &str) -> String {
+    if std::io::stdout().is_terminal() {
+        format!("\x1b[{}m{}\x1b[0m", code, text)
+    } else {
+        text.to_string()
+    }
+}
+
+pub fn red(text: &str) -> String {
+    colorize("31", text)
+}
+
+pub fn green(text: &str) -> String {
+    colorize("32", text)
 }

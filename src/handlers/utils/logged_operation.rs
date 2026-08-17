@@ -1,9 +1,8 @@
-use colored::Colorize;
 use walkdir::DirEntry;
 
 use crate::handlers::utils::file_operation::FileOperation;
 use crate::handlers::utils::file_operation_context::FileOperationContext;
-use crate::log::LogLevel;
+use crate::log::{LogLevel, green};
 
 pub struct LoggedOperation<'a> {
     operation: &'a dyn FileOperation,
@@ -20,7 +19,7 @@ impl FileOperation for LoggedOperation<'_> {
         } else {
             context.logger().log(
                 LogLevel::Info,
-                &format!("[{}] - {}", "Ok".green(), entry_path_str),
+                &format!("[{}] - {}", green("Ok"), entry_path_str),
             )
         }
         result

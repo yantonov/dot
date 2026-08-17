@@ -23,11 +23,20 @@ case "$(uname -s)" in
 esac
 
 REPO="yantonov/dot"
-# Get latest tag
+# /releases/latest returns the latest published (non-draft, non-prerelease)
+# release, unlike /tags which isn't documented as sorted by recency and
+# would also happily point at a tag whose release is still a draft.
 LATEST_TAG=$(
-  curl -fsSL "https://api.github.com/repos/${REPO}/tags" \
-  | jq -r '.[0].name'
+  curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
+  | grep '"tag_name"' \
+  | head -n 1 \
+  | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/'
 )
+
+if [ -z "${LATEST_TAG}" ] || [ "${LATEST_TAG}" = "null" ]; then
+  echo "Could not determine the latest published release for ${REPO}"
+  exit 1
+fi
 
 APP_NAME="dot"
 EXECUTABLE_FILENAME="${APP_NAME}"
@@ -60,11 +69,15 @@ fi
 TARGET_DIR="${HOME}/.local/bin"
 mkdir -p "${TARGET_DIR}"
 
+# Preserve the archived binary's own name (e.g. dot.exe on Windows) instead
+# of assuming it always matches APP_NAME.
+BINARY_NAME="$(basename "${BIN_PATH}")"
+
 # Copy binary to the target directory
-cp "${BIN_PATH}" "${TARGET_DIR}/${APP_NAME}"
-chmod +x "${TARGET_DIR}/${APP_NAME}"
+cp "${BIN_PATH}" "${TARGET_DIR}/${BINARY_NAME}"
+chmod +x "${TARGET_DIR}/${BINARY_NAME}"
 
 # Cleanup
 rm -rf "${TMP_DIR}"
 
-echo "Installed: ${TARGET_DIR}/${APP_NAME}"
+echo "Installed: ${TARGET_DIR}/${BINARY_NAME}"

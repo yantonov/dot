@@ -23,20 +23,24 @@ case "$(uname -s)" in
 esac
 
 REPO="yantonov/dot"
-# /releases/latest returns the latest published (non-draft, non-prerelease)
-# release, unlike /tags which isn't documented as sorted by recency and
-# would also happily point at a tag whose release is still a draft.
-LATEST_TAG=$(
-  curl -fsSL "https://api.github.com/repos/${REPO}/releases/latest" \
-  | grep '"tag_name"' \
-  | head -n 1 \
-  | sed 's/.*"tag_name": *"\([^"]*\)".*/\1/'
-)
 
-if [ -z "${LATEST_TAG}" ] || [ "${LATEST_TAG}" = "null" ]; then
-  echo "Could not determine the latest published release for ${REPO}"
-  exit 1
-fi
+# The version comes from the latest published release rather than from the tag
+# list. A tag exists the moment it is pushed, while the release built from it
+# stays a draft until someone publishes it, so the newest tag can easily point
+# at assets that cannot be downloaded yet. Following the redirect of the
+# 'latest release' page also keeps this free of a json parser and of the
+# unauthenticated api rate limit.
+LATEST_TAG="$(
+  curl -fsSLo /dev/null -w '%{url_effective}' "https://github.com/${REPO}/releases/latest" \
+  | sed 's#.*/tag/##'
+)"
+
+case "${LATEST_TAG}" in
+  ''|*/*)
+    echo "Cannot detect the latest published release of ${REPO}"
+    exit 1
+    ;;
+esac
 
 APP_NAME="dot"
 EXECUTABLE_FILENAME="${APP_NAME}"

@@ -23,7 +23,7 @@ if [ -f "${TARGET}" ] || [ -L "${TARGET}" ]; then
     rm "${TARGET}"
 fi
 
-echo "Create new link ${TARGET}"
+echo "Copy binary to ${TARGET}"
 cp "$(pwd)/target/release/${BINARY_NAME}" "${TARGET}"
 
 echo 'Done'

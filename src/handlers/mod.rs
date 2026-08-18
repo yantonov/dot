@@ -9,7 +9,8 @@ use crate::environment::Environment;
 use crate::handlers::operations::check_operation::CheckFileOperation;
 use crate::handlers::utils::file_operation::{FileOperation, iterate_files};
 use crate::handlers::utils::file_operation_context::FileOperationContext;
-use crate::log::Logger;
+use crate::handlers::utils::symlink_support::check_symlink_support;
+use crate::log::{LogLevel, Logger};
 
 mod operations;
 mod utils;
@@ -37,6 +38,11 @@ pub fn check(environment: &Environment, logger: &Logger) -> Result<(), String> {
 }
 
 pub fn link(environment: &Environment, logger: &Logger, dry_run: bool) -> Result<(), String> {
+    // only per file errors reach the log on their own, this one has to report itself
+    if !dry_run && let Err(message) = check_symlink_support(environment.target_directory()) {
+        logger.log(LogLevel::Error, &message);
+        return Err(message);
+    }
     file_iteration_handler(
         environment,
         logger,

@@ -268,3 +268,68 @@ fn failed_link_keeps_the_existing_file_and_leaves_no_backup() {
         backups
     );
 }
+
+#[test]
+fn probing_for_symlink_support_leaves_nothing_behind() {
+    if !symlinks_supported() {
+        eprintln!("skipping: symlinks not supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+
+    for args in [vec!["--dry-run", "link"], vec!["link"]] {
+        let status = dot_with_dirs(&source, &target)
+            .args(args)
+            .status()
+            .expect("failed to run dot");
+        assert!(status.success());
+
+        let probes: Vec<_> = fs::read_dir(target.path())
+            .unwrap()
+            .filter_map(|e| e.ok())
+            .map(|e| e.file_name().to_string_lossy().into_owned())
+            .filter(|name| name.starts_with(".dot-"))
+            .collect();
+        assert!(probes.is_empty(), "found {:?}", probes);
+    }
+}
+
+// The counterpart of every skipped test above: this one only runs where
+// symlinks are unavailable, which is the environment the check exists for.
+#[test]
+fn link_reports_missing_symlink_support_and_changes_nothing() {
+    if symlinks_supported() {
+        eprintln!("skipping: symlinks are supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+    fs::write(target.path().join("bashrc"), "old content").unwrap();
+
+    let output = dot_with_dirs(&source, &target)
+        .arg("link")
+        .output()
+        .expect("failed to run dot");
+    assert!(!output.status.success());
+    assert!(
+        String::from_utf8_lossy(&output.stdout).contains("cannot create symbolic links"),
+        "expected a symlink support error, got {:?}",
+        String::from_utf8_lossy(&output.stdout)
+    );
+
+    let entries: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .collect();
+    assert_eq!(
+        entries,
+        vec!["bashrc".to_string()],
+        "the target directory must be left as it was"
+    );
+    assert_eq!(
+        fs::read_to_string(target.path().join("bashrc")).unwrap(),
+        "old content"
+    );
+}

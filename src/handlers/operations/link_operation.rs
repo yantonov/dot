@@ -19,16 +19,12 @@ fn get_temporary_link_path(target_file_path: &Path) -> Result<PathBuf, String> {
 }
 
 impl LinkFileOperation {
+    fn is_linked_to_source(&self, target_path: &Path, source_path: &Path) -> bool {
+        std::fs::read_link(target_path).is_ok_and(|link| link.as_path() == source_path)
+    }
+
     fn needs_backup(&self, target_path: &Path, source_path: &Path) -> bool {
-        if !target_path.exists() {
-            return false;
-        }
-        if let Ok(link) = std::fs::read_link(target_path)
-            && link.as_path() == source_path
-        {
-            return false;
-        }
-        true
+        target_path.exists() && !self.is_linked_to_source(target_path, source_path)
     }
 
     fn create_backup_file(
@@ -127,6 +123,12 @@ impl FileOperation for LinkFileOperation {
 
         if context.dry_run() {
             return self.describe_plan(context, target_file_path, source_file_path);
+        }
+
+        // nothing to do for a file that is already linked, and replacing the
+        // symlink with an identical one is a chance to lose it for nothing
+        if self.is_linked_to_source(target_file_path, source_file_path) {
+            return Ok(());
         }
 
         self.create_parent_directory(target_file_path)?;

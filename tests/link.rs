@@ -191,6 +191,32 @@ fn failed_link_keeps_the_existing_symlink() {
         return;
     }
     let (source, target) = source_and_target();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+    let unrelated_file = source.path().join("unrelated");
+    fs::write(&unrelated_file, "somewhere else").unwrap();
+    symlink::symlink_file(&unrelated_file, target.path().join("bashrc")).unwrap();
+    fs::write(target.path().join("bashrc.dot-tmp"), "in the way").unwrap();
+
+    let status = dot_with_dirs(&source, &target)
+        .arg("link")
+        .status()
+        .expect("failed to run dot");
+    assert!(!status.success());
+
+    let linked = fs::canonicalize(target.path().join("bashrc"))
+        .expect("the existing symlink should still resolve");
+    assert_eq!(linked, fs::canonicalize(&unrelated_file).unwrap());
+}
+
+// The blocked temporary path makes any attempt to relink fail, so the run can
+// only succeed when an already-linked file is left alone.
+#[test]
+fn already_linked_file_is_left_alone() {
+    if !symlinks_supported() {
+        eprintln!("skipping: symlinks not supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
     let source_file = source.path().join("bashrc");
     fs::write(&source_file, "export FOO=1").unwrap();
     symlink::symlink_file(&source_file, target.path().join("bashrc")).unwrap();
@@ -200,7 +226,7 @@ fn failed_link_keeps_the_existing_symlink() {
         .arg("link")
         .status()
         .expect("failed to run dot");
-    assert!(!status.success());
+    assert!(status.success());
 
     let linked = fs::canonicalize(target.path().join("bashrc"))
         .expect("the existing symlink should still resolve");

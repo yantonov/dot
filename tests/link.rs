@@ -152,3 +152,93 @@ fn running_link_twice_does_not_create_a_second_backup() {
         backups
     );
 }
+
+#[test]
+fn does_not_leave_temporary_files_behind() {
+    if !symlinks_supported() {
+        eprintln!("skipping: symlinks not supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+
+    let status = dot_with_dirs(&source, &target)
+        .arg("link")
+        .status()
+        .expect("failed to run dot");
+    assert!(status.success());
+
+    let leftovers: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .filter(|name| name.ends_with(".dot-tmp"))
+        .collect();
+    assert!(
+        leftovers.is_empty(),
+        "no temporary file should survive a successful link, found {:?}",
+        leftovers
+    );
+}
+
+// A file sitting on the temporary path is the one link failure that can be
+// staged on every platform - it stands in for the environment where creating a
+// symlink is not permitted at all.
+#[test]
+fn failed_link_keeps_the_existing_symlink() {
+    if !symlinks_supported() {
+        eprintln!("skipping: symlinks not supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
+    let source_file = source.path().join("bashrc");
+    fs::write(&source_file, "export FOO=1").unwrap();
+    symlink::symlink_file(&source_file, target.path().join("bashrc")).unwrap();
+    fs::write(target.path().join("bashrc.dot-tmp"), "in the way").unwrap();
+
+    let status = dot_with_dirs(&source, &target)
+        .arg("link")
+        .status()
+        .expect("failed to run dot");
+    assert!(!status.success());
+
+    let linked = fs::canonicalize(target.path().join("bashrc"))
+        .expect("the existing symlink should still resolve");
+    assert_eq!(linked, fs::canonicalize(&source_file).unwrap());
+}
+
+#[test]
+fn failed_link_keeps_the_existing_file_and_leaves_no_backup() {
+    if !symlinks_supported() {
+        eprintln!("skipping: symlinks not supported in this environment");
+        return;
+    }
+    let (source, target) = source_and_target();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+    fs::write(target.path().join("bashrc"), "old content").unwrap();
+    fs::write(target.path().join("bashrc.dot-tmp"), "in the way").unwrap();
+
+    let status = dot_with_dirs(&source, &target)
+        .arg("link")
+        .status()
+        .expect("failed to run dot");
+    assert!(!status.success());
+
+    assert_eq!(
+        fs::read_to_string(target.path().join("bashrc")).unwrap(),
+        "old content",
+        "a failed link must not touch the existing target file"
+    );
+
+    let backups: Vec<_> = fs::read_dir(target.path())
+        .unwrap()
+        .filter_map(|e| e.ok())
+        .map(|e| e.file_name().to_string_lossy().into_owned())
+        .filter(|name| name.starts_with("bashrc.bak."))
+        .collect();
+    assert!(
+        backups.is_empty(),
+        "a failed link must not leave a backup file behind, found {:?}",
+        backups
+    );
+}

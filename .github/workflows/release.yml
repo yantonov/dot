@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     # define multiple targets
-    name: Publish for ${{ matrix.os }}
+    name: Publish ${{ matrix.asset_name }}
     runs-on: ${{ matrix.os }}
     defaults:
       run:
@@ -16,16 +16,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # The architecture in the asset name is spelled the way uname -m
+        # reports it on that very platform, so the installer can build the
+        # name it needs without a lookup table. Note that macos-latest is
+        # arm64: an asset named just 'macos' would not run on an intel mac.
         include:
           - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
             executable: dot
-            asset_name: dot-linux
+            asset_name: dot-linux-x86_64
+          - os: ubuntu-24.04-arm
+            target: aarch64-unknown-linux-gnu
+            executable: dot
+            asset_name: dot-linux-aarch64
           - os: windows-latest
+            target: x86_64-pc-windows-msvc
             executable: dot.exe
-            asset_name: dot-windows
+            asset_name: dot-windows-x86_64
           - os: macos-latest
+            target: aarch64-apple-darwin
             executable: dot
-            asset_name: dot-macos
+            asset_name: dot-macos-arm64
+          # Built on the arm runner as well: the apple toolchain cross compiles
+          # to intel out of the box, and no x86_64 macos runner has to be kept
+          # alive for it.
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            executable: dot
+            asset_name: dot-macos-x86_64
 
     # build
     steps:
@@ -34,9 +52,11 @@ jobs:
 
       - name: enable toolchain
         uses: dtolnay/rust-toolchain@1.97.1
+        with:
+          targets: ${{ matrix.target }}
 
       - name: build
-        run: cargo build --release
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Set enviroment for github-release
         run: |
@@ -44,25 +64,27 @@ jobs:
 
       - name: create archive
         run: |
-          cd target/release
+          cd target/${{ matrix.target }}/release
           tar -czf "${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz" "${{ matrix.executable }}"
 
       - name: checksum
         run: |
-          cd target/release/
-          ARCHIVE="${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz"
-          if command -v sha256sum >/dev/null 2>&1; then
-            sha256sum "${ARCHIVE}" > "${ARCHIVE}.sha256"
+          cd target/${{ matrix.target }}/release
+          archive="${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz"
+          # linux and git bash carry sha256sum, macos carries shasum
+          if command -v sha256sum > /dev/null 2>&1; then
+            sha256sum "${archive}" > "${archive}.sha256"
           else
-            shasum -a 256 "${ARCHIVE}" > "${ARCHIVE}.sha256"
+            shasum -a 256 "${archive}" > "${archive}.sha256"
           fi
+          cat "${archive}.sha256"
 
       - name: Release
         uses: softprops/action-gh-release@v3
         with:
           draft: true
           files: |
-            target/release/${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz
-            target/release/${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz.sha256
+            target/${{ matrix.target }}/release/${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz
+            target/${{ matrix.target }}/release/${{ matrix.asset_name }}-${{ env.RELEASE_TAG }}.tar.gz.sha256
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

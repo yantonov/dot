@@ -217,8 +217,11 @@ fn already_linked_file_is_left_alone() {
         return;
     }
     let (source, target) = source_and_target();
-    let source_file = source.path().join("bashrc");
-    fs::write(&source_file, "export FOO=1").unwrap();
+    fs::write(source.path().join("bashrc"), "export FOO=1").unwrap();
+    // dot canonicalizes the directories it is given, and the temp directory is
+    // reached through a symlink on macOS, so only a canonical link target is
+    // the one dot would have written itself
+    let source_file = fs::canonicalize(source.path().join("bashrc")).unwrap();
     symlink::symlink_file(&source_file, target.path().join("bashrc")).unwrap();
     fs::write(target.path().join("bashrc.dot-tmp"), "in the way").unwrap();
 

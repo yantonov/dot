@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
+#!/bin/sh
 set -eu
 
 cd "$(dirname "$0")/../.."
 
 cargo build --release
 
-EXECUTABLE_NAME="$(basename $(pwd))"
+EXECUTABLE_NAME="$(basename "$(pwd)")"
 
 # cargo appends .exe to the binary name on Windows
 if [ -f "target/release/${EXECUTABLE_NAME}.exe" ]; then
@@ -18,12 +18,7 @@ TARGET_DIR="${HOME}/.local/bin"
 mkdir -p "${TARGET_DIR}"
 
 TARGET="${TARGET_DIR}/${BINARY_NAME}"
-if [ -f "${TARGET}" ] || [ -L "${TARGET}" ]; then
-    echo "Remove old file ${TARGET}"
-    rm "${TARGET}"
-fi
 
-echo "Copy binary to ${TARGET}"
 cp "$(pwd)/target/release/${BINARY_NAME}" "${TARGET}"
 
-echo 'Done'
+echo "Installed ${BINARY_NAME} to ${TARGET}"

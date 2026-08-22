@@ -11,6 +11,3 @@ TARGET="$(pwd)/target/release/${EXECUTABLE_NAME}"
 cargo build --release
 
 echo "binary file is here: ${TARGET}"
-
-# reduce binary size
-strip "${TARGET}"

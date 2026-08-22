@@ -3,8 +3,12 @@ use clap::Parser;
 use std::fs;
 use std::path::PathBuf;
 
+// The commit is baked in by build.rs, so --version names the exact source the
+// binary was built from without the version number alone having to be enough.
+const VERSION: &str = concat!(env!("CARGO_PKG_VERSION"), " (", env!("GIT_HASH"), ")");
+
 #[derive(Parser)]
-#[clap(version)]
+#[clap(version = VERSION)]
 struct Opts {
     #[clap(short, long, help = "Verbose output")]
     verbose: bool,

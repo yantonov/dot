@@ -1,7 +1,9 @@
-.PHONY: build release test fmt clippy check clean outdated install install-from-source tag-release
+.PHONY: help build release test fmt clippy check clean outdated install install-from-source tag-release
 
 CARGO := cargo
 EXECUTABLE := $(notdir $(CURDIR))
+
+.DEFAULT_GOAL := help
 
 build: ## compile (debug)
 	$(CARGO) build

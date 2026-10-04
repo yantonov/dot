@@ -113,18 +113,37 @@ tests/
 
 ## Build & test
 
+The `Makefile` wraps every common task. Run `make help` for the full list.
+
 ```bash
-cargo build
-cargo build --release
-cargo test
-cargo fmt --check
-cargo clippy --all-targets -- -D warnings
+make build          # cargo build (debug)
+make release        # cargo build --release
+make test           # cargo test
+make fmt            # cargo fmt --check
+make clippy         # cargo clippy --all-targets -- -D warnings
+make check          # fmt → clippy → test → build (same order as CI)
+make clean          # cargo clean
+make install        # release build + copy to ~/.local/bin
+make tag-release VERSION=0.5.0   # bump version, commit, and tag
 ```
+
+Under the hood these are plain `cargo` invocations — `make` is just a
+convenience wrapper. You can still run `cargo build`, `cargo test`, etc.
+directly.
 
 Tests use `tempfile::TempDir` for source and target directories and never touch
 the real `$HOME`. Tests that require symlink creation call `symlinks_supported()`
 and skip themselves when symlinks are unavailable (e.g. on Windows without
 Developer Mode).
+
+### Remaining shell scripts
+
+| Script | Purpose | Public? |
+|---|---|---|
+| `bin/dev/tag-release.sh` | Version bump, commit, tag (called by `make tag-release`) | No |
+| `bin/install/install-from-source.sh` | Copy release binary to `~/.local/bin` (called by `make install`) | No |
+| `bin/install/install.sh` | Public installer (end users `curl` it from GitHub) | Yes |
+| `bin/install/download.sh` | Download + verify + unpack binary (called by `install.sh`) | Yes |
 
 ## CI
 
@@ -182,11 +201,9 @@ Developer Mode).
 
 A change is ready when:
 
-- [ ] `cargo build` and `cargo build --release` succeed with no warnings
-- [ ] `cargo fmt --check` passes (standard `rustfmt`, no custom config)
-- [ ] `cargo clippy --all-targets -- -D warnings` passes with no warnings
-- [ ] `cargo test` passes on the developer's platform (symlink-skipping tests
-      are acceptable on Windows)
+- [ ] `make check` passes (runs `fmt → clippy → test → build`) with no warnings
+      or failures on the developer's platform (symlink-skipping tests are
+      acceptable on Windows)
 - [ ] CI (`.github/workflows/ci.yml`) is green on all matrix targets:
   `ubuntu-latest`, `macos-latest`, and the MSRV job
 - [ ] `--dry-run` is implemented for any new command that mutates the filesystem

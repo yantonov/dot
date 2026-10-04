@@ -73,9 +73,3 @@ integration tests exist in `tests/` for success, failure, and `--dry-run` paths.
 main.rs → parse args → build Environment → dispatch to handler → FileOperation
 ```
 See `docs/architecture.md` for the full source tree and design patterns.
-
-## Project state
-- Current version: 0.5.0
-- Build targets: linux (x86_64, aarch64), windows (x86_64), macos (arm64, x86_64)
-- Tests cover: link, unlink, list, check, backup list, backup remove,
-  idempotent re-link, dry-run, missing parent directories, backup naming

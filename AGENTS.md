@@ -47,28 +47,12 @@ integration tests exist in `tests/` for success, failure, and `--dry-run` paths.
 ## Work rules (correctness → performance → style)
 - **WIP = 1.** One feature at a time. Do not start a second before the first
   passes `make check`.
-- **Scope creep goes to `BACKLOG.md`**, not into the code. Unrelated improvements
-  spotted during work are written there for later.
 - **No incidental refactoring** while the main feature is unverified.
 - **Atomic commits.** One logical unit = one commit. Rollback must be a single
   `git revert`.
 - Before ending a session, make sure `make check` passes.
 
-## Out of scope / Do NOT
-- Do not add `skip`/`xfail`/`ignore` to bypass a failing test (except platform
-  skips for symlinks, which are architectural).
-- Do not add dependencies without a decision record in `docs/DECISIONS.md`.
-- Do not optimize before correctness is verified by `make check`.
-
-## Handoff protocol
-- When context usage exceeds ~60%: stop coding, prepare a handoff.
-- A handoff is: green `make check`, an atomic commit, and a commit message
-  describing what the next session should do.
-- A fresh session must be able to continue from the repo state alone — no chat
-  history required.
-- Recovery target: <3 minutes from session start to first code change.
-
-## Where to find details (read when touching the area)
+## Where to find details
 - `src/main.rs` — entry point (before dispatching new commands)
 - `src/cli_arguments/mod.rs` — clap parser (before adding flags/commands)
 - `src/environment/mod.rs` — Environment struct (before changing dir logic)

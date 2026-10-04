@@ -1,233 +1,97 @@
 # AGENTS.md
 
-## Project overview
+## Project
+`dot` — CLI tool (Rust) for managing dotfiles via symbolic links. Creates
+symlinks from a target directory (default: `$HOME`) to files in a source
+directory (default: cwd). Backs up existing files before overwriting and can
+restore them by replacing symlinks with regular copies.
 
-`dot` is a command-line tool (Rust) that manages dotfiles by creating symbolic
-links from a target directory (default: `$HOME`) to files in a source directory
-(default: current working directory). It backs up existing files before
-overwriting them and can restore them by replacing symlinks with regular copies.
-
-- **Language**: Rust (edition 2024, MSRV 1.88.0)
-- **Binary name**: `dot`
-- **Repository**: <https://github.com/yantonov/dot>
-- **License**: Apache-2.0
+Rust edition 2024, MSRV 1.88.0. Three production dependencies: `clap`,
+`walkdir`, `symlink`. No runtime configuration — CLI flags only.
 
 ## Commands
-
-| Command            | Description                                              |
-| ------------------ | -------------------------------------------------------- |
-| `dot link`         | Create symlinks in target pointing to source files       |
-| `dot unlink`       | Replace symlinks with regular copies of source files     |
-| `dot list`         | List all files (recursively) in the source directory     |
-| `dot check`        | Verify that every source file has a corresponding symlink |
-| `dot backup list`  | List backup files                                        |
-| `dot backup remove`| Remove backup files                                      |
-
-Global flags: `--verbose` / `-v`, `--dry-run`, `--source`, `--target`.
-
-## Architecture
-
-```
-src/
-├── main.rs                 # Entry point: parse args, build Environment, dispatch
-├── cli_arguments/mod.rs    # clap derive parser (Opts, Command, Arguments)
-├── environment/mod.rs      # Environment struct (source_directory, target_directory)
-├── log/mod.rs              # Logger (verbose/non-verbose, ANSI red/green coloring)
-└── handlers/
-    ├── mod.rs              # Dispatch: link, unlink, list, check, list_backup, remove_backup
-    ├── operations/
-    │   ├── mod.rs
-    │   ├── link_operation.rs         # LinkFileOperation: create symlinks + backup
-    │   ├── unlink_operation.rs       # UnlinkFileOperation: replace symlink with copy
-    │   ├── list_operation.rs         # ListFileOperation: print source file paths
-    │   ├── check_operation.rs        # CheckFileOperation: verify symlinks exist
-    │   ├── list_backup_operation.rs  # List backup files for each source entry
-    │   ├── remove_backup_operation.rs# Remove backup files
-    │   └── backup/
-    │       ├── mod.rs
-    │       ├── name_convention.rs    # Backup naming: <file>.bak.<YYYY-MM-DD_HH-MM-SS>
-    │       └── lister.rs             # Walk target dir to find backup files
-    └── utils/
-        ├── mod.rs
-        ├── file_operation.rs         # FileOperation trait + iterate_files()
-        ├── file_operation_context.rs # FileOperationContext (target_dir, source_dir, logger, dry_run)
-        ├── file_utils.rs             # target_path(): compute target path from source relative path
-        ├── logged_operation.rs       # LoggedOperation decorator: logs [Ok]/[Error] per file
-        └── symlink_support.rs        # Probe-based symlink capability check (upfront)
-
-tests/
-├── common/mod.rs           # Helpers: dot() cmd, source_and_target(), symlinks_supported()
-├── link.rs                 # Integration tests for `dot link`
-├── unlink.rs               # Integration tests for `dot unlink`
-├── check.rs                # Integration tests for `dot check`
-└── backup_remove.rs        # Integration tests for `dot backup remove`
-```
-
-### Key design patterns
-
-1. **FileOperation trait**: The core abstraction. Every operation (link, unlink,
-   list, check, backup list, backup remove) implements `FileOperation` with a
-   single `call(context, entry)` method. `iterate_files()` in
-   `file_operation.rs` walks the source directory with `WalkDir`, filters out
-   directories, and calls the operation on each file.
-
-2. **LoggedOperation decorator**: Wraps any `FileOperation` to add per-file
-   logging (`[Ok]` in green on success, `[Error]` in red on failure). This is
-   how operations are used from `handlers/mod.rs`. The decorator also ensures
-   that a failure on one file doesn't stop processing of the rest (fold-based
-   iteration, not `try_fold`).
-
-3. **FileOperationContext**: A read-only context struct holding target directory,
-   source directory, logger reference, and dry_run flag. Passed to every
-   `FileOperation::call()`.
-
-4. **Atomic symlink creation**: `LinkFileOperation` creates the symlink at a
-   temporary path (`<target>.dot-tmp`) first, then renames it onto the target.
-   If the rename fails, the temporary link is cleaned up. This ensures that a
-   failure (e.g. permission error) doesn't leave the target in a broken state.
-
-5. **Upfront symlink probe**: Before `dot link` touches any file, it creates and
-   deletes a single probe symlink (`.dot-symlink-probe`) in the target directory
-   to verify symlink creation is possible. This turns a missing privilege into
-   one clear error rather than N repeated errors.
-
-6. **Backup naming**: Backups use the pattern `<filename>.bak.YYYY-MM-DD_HH-MM-SS`
-   (UTC). The timestamp is computed using Howard Hinnant's `civil_from_days`
-   algorithm (no timezone crate dependency). The `is_backup_file` function
-   validates the format with a closure-based pattern matcher.
-
-7. **No directories linked**: Only regular files in the source tree generate
-   symlinks. Missing parent directories in the target are created automatically
-   (`create_dir_all`). This is intentional — the tool doesn't do "tree folding"
-   like GNU Stow.
-
-8. **Idempotent link**: If a target file is already a symlink pointing to the
-   canonical source path, `link` skips it without creating a new backup.
-
-9. **MSRV CI**: A dedicated CI job builds and tests with the MSRV (1.88.0)
-   to keep `rust-version` in `Cargo.toml` honest.
-
-10. **Git hash in version**: `build.rs` captures `git rev-parse HEAD` at build
-    time and embeds it via `env!("GIT_HASH")`, so `dot --version` shows the
-    exact commit.
-
-## Build & test
-
-The `Makefile` wraps every common task. Run `make help` for the full list.
-
+All commands are reachable through the `Makefile`. Run `make help` for the full list.
 ```bash
-make build          # cargo build (debug)
-make release        # cargo build --release
-make test           # cargo test
-make fmt            # cargo fmt --check
-make clippy         # cargo clippy --all-targets -- -D warnings
-make check          # fmt → clippy → test → build (same order as CI)
-make clean          # cargo clean
-make install        # release build + copy to ~/.local/bin
-make tag-release VERSION=0.5.0   # bump version, commit, and tag
+make check   # fmt → clippy → test → build (same order as CI — the single verification gate)
+make build   # cargo build (debug)
+make test    # cargo test
+make release # cargo build --release
 ```
 
-Under the hood these are plain `cargo` invocations — `make` is just a
-convenience wrapper. You can still run `cargo build`, `cargo test`, etc.
-directly.
-
-Tests use `tempfile::TempDir` for source and target directories and never touch
-the real `$HOME`. Tests that require symlink creation call `symlinks_supported()`
-and skip themselves when symlinks are unavailable (e.g. on Windows without
-Developer Mode).
-
-### Remaining shell scripts
-
-| Script | Purpose | Public? |
-|---|---|---|
-| `bin/dev/tag-release.sh` | Version bump, commit, tag (called by `make tag-release`) | No |
-| `bin/install/install-from-source.sh` | Copy release binary to `~/.local/bin` (called by `make install`) | No |
-| `bin/install/install.sh` | Public installer (end users `curl` it from GitHub) | Yes |
-| `bin/install/download.sh` | Download + verify + unpack binary (called by `install.sh`) | Yes |
-
-## CI
-
-- **ci.yml**: Runs on push/PR to `master`. Build, fmt, clippy, test on
-  `ubuntu-latest` and `macos-latest`. Separate MSRV job. Windows is excluded
-  from CI because GitHub-hosted Windows runners may not consistently support
-  symlinks (requires Developer Mode or SeCreateSymbolicLinkPrivilege).
-- **release.yml**: Triggered by tag push. Cross-compiles for 5 targets
-  (linux x86_64/aarch64, windows x86_64, macos arm64/x86_64), creates `.tar.gz`
-  archives with sha256 checksums, uploads as draft GitHub release.
-
-## Dependencies
-
-| Crate      | Purpose                        |
-| ---------- | ------------------------------ |
-| `clap`     | CLI argument parsing (derive)  |
-| `walkdir`  | Recursive directory walking    |
-| `symlink`  | Cross-platform symlink creation|
-
-## Hard constraints
-
-- **No new dependencies without strong justification.** The dependency footprint
-  is intentionally minimal — three production crates (`clap`, `walkdir`,
-  `symlink`) and one dev-dependency (`tempfile`). Before adding a crate, prefer
-  a hand-rolled solution (as done for ANSI coloring, timestamp computation, and
-  symlink probing).
-- **Rust edition 2024, MSRV 1.88.0.** The MSRV is enforced by a dedicated CI
-  job. Any change that bumps the required Rust version must update
-  `Cargo.toml`'s `rust-version` field and the CI matrix.
-- **No directory symlinks.** Only regular files are linked. Missing parent
-  directories in the target are created with `create_dir_all`, but the tool
-  must never create a symlink pointing at a directory. This is a deliberate
-  design choice (see README § Technical notes, item 6d).
-- **Must not touch `$HOME` in tests.** All tests use `tempfile::TempDir` for
-  both source and target. The real home directory is never affected by the test
-  suite.
-- **Symlink-capable tests must self-skip when symlinks are unavailable.**
-  Any test that calls `symlink::symlink_file` or invokes `dot link` (which
-  creates symlinks) must gate on `symlinks_supported()` and skip with a message
-  rather than fail.
-- **No config file, no templates, no DSL.** The tool is intentionally simple.
-  Configuration is done through CLI flags only (`--source`, `--target`). Do
-  not introduce configuration files, template engines, or embedded scripting.
-- **Backward compatibility.** Existing backup file naming
-  (`<file>.bak.YYYY-MM-DD_HH-MM-SS`) and command-line interface must remain
-  compatible. `dot link` must remain idempotent (re-linking an already-correct
-  symlink is a no-op).
-- **Cross-platform.** The tool must build and pass tests on Linux, macOS, and
-  Windows (symlink tests skip on Windows where symlinks require elevated
-  privileges). OS-specific code paths must be behind `cfg` attributes, not
-  separate platform crates.
+## Hard constraints (MUST)
+- **No new dependencies without strong justification.** Prefer a hand-rolled
+  solution (ANSI coloring, timestamp computation, symlink probing).
+- **Rust edition 2024, MSRV 1.88.0.** Bumping the MSRV requires updating CI,
+  `Cargo.toml`'s `rust-version`, and a note in `docs/DECISIONS.md`.
+- **No directory symlinks.** Only regular files are linked (see README §
+  Technical notes, item 6d).
+- **Tests never touch `$HOME`.** All tests use `tempfile::TempDir`.
+- **Symlink-capable tests must self-skip** on platforms without symlinks
+  (Windows without Developer Mode) — skip, don't fail.
+- **No config file, no templates, no DSL.** Configuration via `--source` /
+  `--target` flags only.
+- **Backward compatibility.** Backup naming (`<file>.bak.YYYY-MM-DD_HH-MM-SS`)
+  and the `dot link` command must remain idempotent.
+- **Cross-platform.** Build and pass tests on Linux, macOS, Windows.
+  OS-specific code behind `#[cfg]`, never separate platform crates.
 - **No `unsafe` code.**
 
-## Definition of done
+## Definition of Done
+A feature is done = `make check` is green + CI is green on all matrix targets
++ `--dry-run` is implemented for mutating commands + new commands follow the
+`FileOperation` trait + `--version` reports correct hash + README is updated +
+integration tests exist in `tests/` for success, failure, and `--dry-run` paths.
 
-A change is ready when:
+"Code written" is not done.
 
-- [ ] `make check` passes (runs `fmt → clippy → test → build`) with no warnings
-      or failures on the developer's platform (symlink-skipping tests are
-      acceptable on Windows)
-- [ ] CI (`.github/workflows/ci.yml`) is green on all matrix targets:
-  `ubuntu-latest`, `macos-latest`, and the MSRV job
-- [ ] `--dry-run` is implemented for any new command that mutates the filesystem
-      and produces a faithful description of what would happen
-- [ ] New commands follow the `FileOperation` trait pattern and are wrapped in
-      `LoggedOperation` for consistent per-file logging
-- [ ] Any new CLI flags are added to `cli_arguments/mod.rs` with a `clap`
-      `#[clap(help = "...")]` doc string
-- [ ] `dot --version` continues to report the correct version and git hash
-      (`build.rs` embeds `GIT_HASH` at compile time)
-- [ ] README is updated if the user-facing behavior changes (new command,
-      new flag, changed output)
-- [ ] Integration tests exist in `tests/` for new commands, covering both
-      success and failure paths, as well as `--dry-run`
+## Work rules (correctness → performance → style)
+- **WIP = 1.** One feature at a time. Do not start a second before the first
+  passes `make check`.
+- **Scope creep goes to `BACKLOG.md`**, not into the code. Unrelated improvements
+  spotted during work are written there for later.
+- **No incidental refactoring** while the main feature is unverified.
+- **Atomic commits.** One logical unit = one commit. Rollback must be a single
+  `git revert`.
+- Before ending a session, make sure `make check` passes.
 
-## Coding conventions
+## Out of scope / Do NOT
+- Do not add `skip`/`xfail`/`ignore` to bypass a failing test (except platform
+  skips for symlinks, which are architectural).
+- Do not add dependencies without a decision record in `docs/DECISIONS.md`.
+- Do not optimize before correctness is verified by `make check`.
 
-- Rust edition 2024
-- Functions return `Result<(), String>` (not `Box<dyn Error>`) — errors are
-  simple strings composed at the call site
-- No third-party color/logging crate — ANSI escape codes are hand-rolled in
-  `log/mod.rs` and only activated when stdout is a terminal
-- `Environment` is a plain struct (not a trait) with two `PathBuf` fields
-- `Arguments` wraps `Opts` — it's not a plain clap struct, providing
-  methods like `command()`, `verbose()`, `dry_run()`, and validated
-  `source_directory()` / `target_directory()`
-- Tests have their own `common` module with shared setup helpers
+## Handoff protocol
+- When context usage exceeds ~60%: stop coding, prepare a handoff.
+- A handoff is: green `make check`, an atomic commit, and a commit message
+  describing what the next session should do.
+- A fresh session must be able to continue from the repo state alone — no chat
+  history required.
+- Recovery target: <3 minutes from session start to first code change.
+
+## Where to find details (read when touching the area)
+- `src/main.rs` — entry point (before dispatching new commands)
+- `src/cli_arguments/mod.rs` — clap parser (before adding flags/commands)
+- `src/environment/mod.rs` — Environment struct (before changing dir logic)
+- `src/handlers/mod.rs` — dispatch to operations (before adding a command)
+- `src/handlers/operations/` — FileOperation implementations (before any op change)
+- `src/handlers/utils/file_operation.rs` — `FileOperation` trait + `iterate_files()` (before introducing new iteration patterns)
+- `src/handlers/utils/logged_operation.rs` — logging decorator (before changing output format)
+- `src/log/mod.rs` — ANSI logger (before changing terminal output)
+- `tests/common/mod.rs` — test helpers (always consult before writing new tests)
+- `tests/` — integration tests per command; primary source of truth for behavior
+- `docs/architecture.md` — source tree, design patterns, shell scripts (before structural changes)
+- `docs/conventions.md` — coding conventions, CI setup (before changing patterns)
+- `docs/DECISIONS.md` — accepted AND rejected decisions with reasons (before proposing an alternative approach)
+- `README.md` — user-facing documentation
+
+## Architecture overview
+```
+main.rs → parse args → build Environment → dispatch to handler → FileOperation
+```
+See `docs/architecture.md` for the full source tree and design patterns.
+
+## Project state
+- Current version: 0.5.0
+- Build targets: linux (x86_64, aarch64), windows (x86_64), macos (arm64, x86_64)
+- Tests cover: link, unlink, list, check, backup list, backup remove,
+  idempotent re-link, dry-run, missing parent directories, backup naming

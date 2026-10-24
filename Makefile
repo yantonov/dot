@@ -1,4 +1,4 @@
-.PHONY: help build release test fmt clippy check clean outdated install install-from-source tag-release
+.PHONY: help help-all build release test fmt clippy check clean outdated install install-from-source tag-release
 
 CARGO := cargo
 EXECUTABLE := $(notdir $(CURDIR))
@@ -41,6 +41,21 @@ ifndef VERSION
 endif
 	sh bin/dev/tag-release.sh $(VERSION)
 
-help: ## print this help
+help: ## print help (public targets only)
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; \
+			/^(build|release|test|check|install):/ {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "Run 'make help-all' for the full list, including internal targets."
+
+help-all: ## print help (all targets)
+	@echo "Public targets:"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -E "^(build|release|test|check|install):" | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@echo ""
+	@echo "Internal targets (typically called via check or build):"
+	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		grep -vE "^(help|help-all|build|release|test|check|install):" | \
+		grep -E '^[a-zA-Z_-]+:.*?## .*$$' | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'

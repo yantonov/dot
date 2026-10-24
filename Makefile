@@ -5,57 +5,65 @@ EXECUTABLE := $(notdir $(CURDIR))
 
 .DEFAULT_GOAL := help
 
-build: ## compile (debug)
+build:
 	$(CARGO) build
 	@echo "binary: target/debug/$(EXECUTABLE)"
 
-release: ## compile (release)
+release:
 	$(CARGO) build --release
 	@echo "binary: target/release/$(EXECUTABLE)"
 
-test: ## run tests
+test:
 	$(CARGO) test
 
-fmt: ## check formatting
+fmt:
 	$(CARGO) fmt --check
 
-clippy: ## lint with clippy, warnings are errors
+clippy:
 	$(CARGO) clippy --all-targets -- -D warnings
 
-check: fmt clippy test build ## all CI checks (fmt, clippy, test, build)
+check: fmt clippy test build
 
-clean: ## remove build artifacts
+clean:
 	$(CARGO) clean
 
-outdated: ## list outdated dependencies (requires cargo-outdated)
+outdated:
 	$(CARGO) outdated -R
 
-install: release ## build in release mode and copy to ~/.local/bin
+install: release
 	sh bin/install/install-from-source.sh
 
-install-from-source: install ## alias for install
+install-from-source: install
 
-tag-release: ## bump version, commit, and tag (usage: make tag-release VERSION=0.5.0)
+tag-release:
 ifndef VERSION
 	$(error VERSION is required, e.g. make tag-release VERSION=0.5.0)
 endif
 	sh bin/dev/tag-release.sh $(VERSION)
 
-help: ## print help (public targets only)
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		awk 'BEGIN {FS = ":.*?## "}; \
-			/^(build|release|test|check|install):/ {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+help:
+	@echo "Usage: make [target]"
+	@echo ""
+	@echo "  check    - All CI checks (fmt, clippy, test, build)"
+	@echo "  build    - Compile (debug)"
+	@echo "  release  - Compile (release)"
+	@echo "  test     - Run tests"
+	@echo "  install  - Build in release mode and copy to ~/.local/bin"
 	@echo ""
 	@echo "Run 'make help-all' for the full list, including internal targets."
 
-help-all: ## print help (all targets)
+help-all:
 	@echo "Public targets:"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -E "^(build|release|test|check|install):" | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@echo "  check              - All CI checks (fmt, clippy, test, build)"
+	@echo "  build              - Compile (debug)"
+	@echo "  release            - Compile (release)"
+	@echo "  test               - Run tests"
+	@echo "  install            - Build in release mode and copy to ~/.local/bin"
 	@echo ""
 	@echo "Internal targets (typically called via check or build):"
-	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
-		grep -vE "^(help|help-all|build|release|test|check|install):" | \
-		grep -E '^[a-zA-Z_-]+:.*?## .*$$' | \
-		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-22s\033[0m %s\n", $$1, $$2}'
+	@echo "  fmt                - Check formatting"
+	@echo "  clippy             - Lint with clippy, warnings are errors"
+	@echo "  clean              - Remove build artifacts"
+	@echo "  outdated           - List outdated dependencies (requires cargo-outdated)"
+	@echo "  install-from-source  - Alias for install"
+	@echo "  tag-release        - Bump version, commit, and tag (VERSION=...)"

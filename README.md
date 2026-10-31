@@ -57,13 +57,9 @@ never drift apart. A specific release can be installed instead with
 2. Use it from any directory (from your git repository or any other folder)
 
 ## Windows specifics
-You must have additional privileges to create symbolic links.
-You can set permissions here:
-```
-Configuration \ Windows Settings \ Security Settings \ Local Policies \ User Rights Assignment\ Create symbolic links
-```
-By default Administrator can create symbolic links.
-Make sure you run Git bash as an administrator.
+Creating symlinks on Windows needs either Developer Mode or the
+`SeCreateSymbolicLinkPrivilege` privilege; running as an administrator is not
+the requirement. See [docs/windows.md](docs/windows.md).
 
 ## Tecnhical remarks
 1. This implementation supports the simplest scenario to create symlinks, restore a regular file, and creating backup files before any symlink is introduced.

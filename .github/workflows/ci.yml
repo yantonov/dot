@@ -15,10 +15,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # windows-latest is intentionally excluded: creating symlinks there
-        # requires an elevated privilege (or Developer Mode) that GitHub-hosted
-        # runners may not consistently grant, which would make the symlink
-        # tests flaky rather than meaningful.
+        # windows-latest is intentionally excluded: the symlink tests need
+        # Developer Mode, which GitHub-hosted Windows runners do not enable.
+        # The runners themselves are elevated, so this is not a privilege gap.
+        # See docs/windows.md.
         os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v7

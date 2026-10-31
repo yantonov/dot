@@ -61,7 +61,7 @@ tests/
 5. **Upfront symlink probe**: Before `dot link` touches any file, it creates and
    deletes a single probe symlink (`.dot-symlink-probe`) in the target directory
    to verify symlink creation is possible — one clear error instead of N
-   repeated ones.
+   repeated ones. See `docs/windows.md` for what Windows requires.
 
 6. **Backup naming**: `<filename>.bak.YYYY-MM-DD_HH-MM-SS` (UTC). Timestamp
    computed using Howard Hinnant's `civil_from_days` algorithm — no timezone

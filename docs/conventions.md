@@ -14,8 +14,9 @@
 ## CI
 
 - **ci.yml**: Push/PR to `master`. Build, fmt, clippy, test on `ubuntu-latest`
-  and `macos-latest`. Separate MSRV job. Windows excluded because GitHub-hosted
-  Windows runners may not consistently support symlinks.
+  and `macos-latest`. Separate MSRV job. Windows excluded because the symlink
+  tests need Developer Mode, which GitHub-hosted Windows runners do not enable
+  (see `docs/windows.md`).
 - **release.yml**: Triggered by tag push. Cross-compiles for 5 targets (linux
   x86_64/aarch64, windows x86_64, macos arm64/x86_64), creates `.tar.gz`
   archives with sha256 checksums, uploads as draft GitHub release.
